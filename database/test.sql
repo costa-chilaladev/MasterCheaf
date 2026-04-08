@@ -1,5 +1,5 @@
 use mastercheaf_aoa;
 
-select * from recipes;
+select * from images;
 
 show tables;

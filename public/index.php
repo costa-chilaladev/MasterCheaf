@@ -13,6 +13,7 @@
         <!-- 2. Chama o script gerenciado pelo Vite -->
         <!-- (Certifica-te que o 'npm run dev' está a correr) -->
         <script type="module" src="http://localhost:5173/public/assets/js/main.js"></script>
+        <link rel="stylesheet" href="assets/css/main.css">
 
     </head>
 

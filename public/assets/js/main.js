@@ -6,12 +6,42 @@ const loadRecipes = async () => {
     console.log(data)
     
     data.forEach(recipe => {
-        const recipeElement = document.createElement('div');
-        recipeElement.classList.add('recipe');
-        recipeElement.innerHTML = `
-            <h2>${recipe.name}</h2>
-            <p>${recipe.description}</p>
-        `;
+        const recipeElement = document.createElement('article');
+        const figure = document.createElement('figure');
+
+        const images = recipe.images || [];
+
+        if (images && images.length > 0) {
+            const img = document.createElement('img');
+            img.alt = recipe.name;
+            figure.appendChild(img);
+
+            if (images.length > 1) {
+                // Função para alternar imagens automaticamente
+                let currentIndex = 0;
+                img.src = `/MasterCheaf/uploads/recipes/${images[currentIndex]}`;
+                
+                const intervalId = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    img.src = `/MasterCheaf/uploads/recipes/${images[currentIndex]}`;
+                }, 3000);
+                
+                recipeElement.intervalId = intervalId;
+            } else {
+                img.src = `/MasterCheaf/uploads/recipes/${images[0]}`;
+            }
+        }
+
+        recipeElement.appendChild(figure);
+        const title = document.createElement('h2');
+        title.textContent = recipe.name;
+        recipeElement.appendChild(title);
+
+        const description = document.createElement('p');
+        description.textContent = recipe.description;
+        recipeElement.appendChild(description);
+        recipeElement.setAttribute("class", "recipe-card");
+        
         document.getElementById('recipes-grade').appendChild(recipeElement);
     })
 };
