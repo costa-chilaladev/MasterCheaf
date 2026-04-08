@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Explore Recipes</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- 1. Define a variável global para o JS saber onde está a API -->
+        <script>
+        window.API_BASE = "http://localhost/MasterCheaf/src";
+        </script>
+
+        <!-- 2. Chama o script gerenciado pelo Vite -->
+        <!-- (Certifica-te que o 'npm run dev' está a correr) -->
+        <script type="module" src="http://localhost:5173/public/assets/js/main.js"></script>
+
+    </head>
+
+    <body>
+        <header>
+            
+        </header>
+
+        <main>
+            <section class="search-section">
+                <div class="search-box">
+                    <input type="text" placeholder="Duck rice..." id="search-input" required>
+                    <button type="button" class="search-btn">x</button>
+                </div>
+
+                <button id="filter-btn" class="filter-btn">FILTER</button>
+            </section>
+
+            <section id="recipes-grade">
+
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>© 2026 MasterChefAOA. All rights reserved.</p>
+        </footer>
+
+    </body>
+</html>
