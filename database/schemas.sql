@@ -39,4 +39,9 @@ insert into ingredients (name) values ('Pasta'), ('Eggs'), ('Cheese'), ('Pancett
 
 insert into recipe_ingredients (recipe_id, ingredient_id) values (1, 1), (1, 2), (1, 3), (1, 4), (1, 5);
 
-show tables;
+create table if not exists `images` (
+  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `recipe_id` int NOT NULL,
+  `image_url_name` varchar(255) NOT NULL,
+  FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
