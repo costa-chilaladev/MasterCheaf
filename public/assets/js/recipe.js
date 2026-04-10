@@ -1,3 +1,4 @@
+import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -13,11 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const ingredients = recipe.ingredients || [];
         const preparation_steps = recipe.preparation_steps || [];
 
-        console.log(recipe);
-
-        const image = document.createElement('img');
-        image.src = `/MasterCheaf/uploads/recipes/${images[0]}`;
-        document.getElementById('recipe-details').appendChild(image);
+        createCarroussel(document.getElementById('image-container'), images, recipe.name);
 
 
         const recipeTitle = document.createElement('h2');
@@ -85,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-document.getElementById('addStepButton').addEventListener('click', ()=> {
+document.getElementById('addStepButton').addEventListener('click', () => {
     const div = document.getElementById('steps-container');
     const stepCount = div.querySelectorAll('input').length + 1;
     const label = document.createElement('label');

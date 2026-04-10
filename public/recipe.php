@@ -16,6 +16,8 @@
         <link rel="stylesheet" href="assets/css/recipe.css">
 </head>
 <body>
-    <main id="recipe-details"></main>
+    <main id="recipe-details">
+        <section id="image-container"></section>
+    </main>
 </body>
 </html>

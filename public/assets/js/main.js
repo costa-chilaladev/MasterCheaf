@@ -1,3 +1,5 @@
+import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
+
 const loadRecipes = async () => {
     // O Vite vai trocar o @ pelo caminho real na hora de rodar
     const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipes`);
@@ -24,26 +26,7 @@ const loadRecipes = async () => {
 
         const images = recipe.images || [];
 
-        if (images && images.length > 0) {
-            const img = document.createElement('img');
-            img.alt = recipe.name;
-            figure.appendChild(img);
-
-            if (images.length > 1) {
-                // Função para alternar imagens automaticamente
-                let currentIndex = 0;
-                img.src = `/MasterCheaf/uploads/recipes/${images[currentIndex]}`;
-                
-                const intervalId = setInterval(() => {
-                    currentIndex = (currentIndex + 1) % images.length;
-                    img.src = `/MasterCheaf/uploads/recipes/${images[currentIndex]}`;
-                }, 3000);
-                
-                recipeElement.intervalId = intervalId;
-            } else {
-                img.src = `/MasterCheaf/uploads/recipes/${images[0]}`;
-            }
-        }
+        createCarroussel(recipeElement, images, recipe.name);
 
         recipeElement.appendChild(figure);
         const title = document.createElement('h2');
@@ -61,5 +44,6 @@ const loadRecipes = async () => {
 };
 
 loadRecipes();
+
 
 
