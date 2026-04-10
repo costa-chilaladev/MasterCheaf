@@ -32,4 +32,39 @@ class Recipe {
 
         return $result;
     }
+
+    public function getAllIngredients() {
+        $sql = $this->db->prepare("SELECT * FROM ingredients");
+        $sql->execute();
+        $sqlResult = $sql->get_result();
+        $result = [];
+
+        while ($row = $sqlResult->fetch_assoc()) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
+    public function createRecipe($name, $description, $ingredients) {
+        $sql = $this->db->prepare("INSERT INTO recipes (name, description) VALUES (?, ?)");
+        $sql->bind_param("ss", $name, $description);
+        
+        if (!$sql->execute()) {
+            throw new Exception("Erro ao criar receita: " . $sql->error);
+            exit();
+        }
+        
+        $id = $this->db->insert_id; // Retorna o ID da nova receita
+
+        foreach ($ingredients as $ingredientId) {
+            $sql = $this->db->prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id) VALUES (?, ?)");
+            $sql->bind_param("ii", $id, $ingredientId);
+            if (!$sql->execute()) {
+                throw new Exception("Erro ao associar ingrediente: " . $sql->error);
+            }
+        }
+
+        return $id;
+    }
 }

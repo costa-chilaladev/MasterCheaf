@@ -7,7 +7,7 @@
 
         <!-- 1. Define a variável global para o JS saber onde está a API -->
         <script>
-        window.API_BASE = "http://localhost/MasterCheaf/src";
+            window.API_BASE = "http://localhost/MasterCheaf/src";
         </script>
 
         <!-- 2. Chama o script gerenciado pelo Vite -->
@@ -19,7 +19,7 @@
 
     <body>
         <header>
-            
+            <a style="color: blue; background-color: red" href="createRecipe.php">Create Recipe</a>
         </header>
 
         <main>
