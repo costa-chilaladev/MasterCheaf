@@ -3,9 +3,22 @@ const loadRecipes = async () => {
     const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipes`);
     const data = await response.json();
 
-    console.log(data)
+    if (!data.success) {
+        console.log("error fetching recipes:", data.message);
+        return;
+    }
+
+    const recipes = data.data;
+
+    if (recipes.length === 0) {
+        console.log("No recipes found");
+        return;
+    }
     
-    data.forEach(recipe => {
+    recipes.forEach(recipe => {
+        const destinationPageLink = document.createElement('a');
+        destinationPageLink.href = `/MasterCheaf/public/recipe.php?id=${recipe.id}`;
+
         const recipeElement = document.createElement('article');
         const figure = document.createElement('figure');
 
@@ -42,7 +55,8 @@ const loadRecipes = async () => {
         recipeElement.appendChild(description);
         recipeElement.setAttribute("class", "recipe-card");
         
-        document.getElementById('recipes-grade').appendChild(recipeElement);
+        destinationPageLink.appendChild(recipeElement);
+        document.getElementById('recipes-grade').appendChild(destinationPageLink);
     })
 };
 

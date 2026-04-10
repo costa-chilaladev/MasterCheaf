@@ -67,4 +67,30 @@ class Recipe {
 
         return $id;
     }
+
+    public function getRecipeById($id) {
+        $sql = $this->db->prepare("SELECT * FROM recipes WHERE id = ?");
+        $sql->bind_param("i", $id);
+        $sql->execute();
+        $sqlResult = $sql->get_result();
+        $recipe = $sqlResult->fetch_assoc();
+
+        if (!$recipe) {
+            throw new Exception("Receita não encontrada");
+        }
+
+        $stmt = $this->db->prepare("SELECT * from recipe_ingredients ri JOIN ingredients i ON ri.ingredient_id = i.id WHERE ri.recipe_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $ingredientResult = $stmt->get_result();
+        $ingredients = [];
+
+        while ($row = $ingredientResult->fetch_assoc()) {
+            $ingredients[] = $row;
+        }
+
+        $recipe['ingredients'] = $ingredients;
+
+        return $recipe;
+    }
 }
