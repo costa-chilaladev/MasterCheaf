@@ -24,13 +24,35 @@
                     $name = trim($_POST['recipe-name'] ?? '');
                     $description = trim($_POST['recipe-description'] ?? '');
                     $ingredients = $_POST['recipe-ingredients'] ?? [];
+                    $preparationSteps = $_POST['recipe-preparation-steps'] ?? [];
 
                     if (empty($name)) {
                         throw new Exception("Nome da receita é obrigatório");
                     }
 
-                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients);
-                    echo json_encode(["success" => true, "data" => $newRecipe]);
+                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps);
+                    $newRecipeId = $newRecipe;
+
+                    if (!empty($_FILES['recipe-images'])) {
+                        foreach ($_FILES['recipe-images']["tmp_name"] as $index => $tmpName) {
+                            if ($_FILES['recipe-images']["error"][$index] !== UPLOAD_ERR_OK) {
+                                continue;
+                            }
+
+                            $originalName = $_FILES['recipe-images']["name"][$index];
+                            $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+                            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                            $safeName = trim($_POST['recipe-name'] ?? '');
+                            $newFileName = $baseName . "_" . $safeName . "_" . $newRecipeId . "." . $ext;
+                            
+                            $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/uploads/recipes/';
+                            move_uploaded_file($tmpName, $uploadDir . $newFileName);
+                            $recipeModel->addImageRecipe($newRecipeId, $newFileName);
+                        }
+                    }
+
+                    
+                    echo json_encode(["success" => true, "data" => $newRecipeId]);
                     break;
 
                 case "getAllIngredients":
@@ -44,6 +66,7 @@
                         throw new Exception("ID da receita é obrigatório");
                     }
                     $recipe = $recipeModel->getRecipeById($id);
+
                     echo json_encode(["success" => true, "data" => $recipe]);
                     break;
             }

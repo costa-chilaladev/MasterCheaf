@@ -23,7 +23,7 @@
         </header>
 
         <main>
-            <form id="create-recipe-form">
+            <form id="create-recipe-form" enctype="multipart/form-data">
                 <div>
                     <label for="recipe-name">Recipe Name:</label>
                     <input type="text" id="recipe-name" name="recipe-name" required>
@@ -36,6 +36,20 @@
                 <div>
                     <select multiple name="recipe-ingredients[]" id="recipe-ingredients">Ingredients</select>
                 </div>
+
+                <div>
+                    <input type="file" name="recipe-images[]" id="recipe-images" multiple accept="image/*">
+                </div>
+
+                <div>
+                    <div id="steps-container">
+                        <h3>Steps</h3>
+                        <label for="step-1">1</label>
+                        <input type="text" id="step-1" name="recipe-preparation-steps[]">
+                    </div>
+                    <button id="addStepButton" type="button">Add Step</button>
+                </div>
+
                 <button type="submit">Create Recipe</button>
             </form>
         </main>

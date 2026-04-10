@@ -46,7 +46,7 @@ class Recipe {
         return $result;
     }
 
-    public function createRecipe($name, $description, $ingredients) {
+    public function createRecipe($name, $description, $ingredients, $preparationSteps) {
         $sql = $this->db->prepare("INSERT INTO recipes (name, description) VALUES (?, ?)");
         $sql->bind_param("ss", $name, $description);
         
@@ -62,6 +62,15 @@ class Recipe {
             $sql->bind_param("ii", $id, $ingredientId);
             if (!$sql->execute()) {
                 throw new Exception("Erro ao associar ingrediente: " . $sql->error);
+            }
+        }
+
+        foreach ($preparationSteps as $index => $stepDescription) {
+            $stepNumber = $index + 1; // Passo 1, Passo 2, etc.
+            $sql = $this->db->prepare("INSERT INTO preparation_steps (recipe_id, step_number, description) VALUES (?, ?, ?)");
+            $sql->bind_param("iis", $id, $stepNumber, $stepDescription);
+            if (!$sql->execute()) {
+                throw new Exception("Erro ao adicionar passo de preparação: " . $sql->error);
             }
         }
 
@@ -91,6 +100,42 @@ class Recipe {
 
         $recipe['ingredients'] = $ingredients;
 
+        $stmt = $this->db->prepare("SELECT image_name FROM images WHERE recipe_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $imageResult = $stmt->get_result();
+        $images = [];
+
+        while ($imageRow = $imageResult->fetch_assoc()) {
+            $images[] = $imageRow['image_name'];
+        }
+
+        $recipe['images'] = $images;
+
+        $stmt = $this->db->prepare("SELECT step_number, description FROM preparation_steps WHERE recipe_id = ? ORDER BY step_number ASC");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stepResult = $stmt->get_result();
+        $steps = [];
+
+        while ($row = $stepResult->fetch_assoc()) {
+            $steps[] = $row;
+        }
+
+        $recipe['preparation_steps'] = $steps;
+
+
         return $recipe;
+    }
+
+    public function addImageRecipe($recipeId, $imageName) {
+        $sql = $this->db->prepare("INSERT INTO images (recipe_id, image_name) VALUES (?, ?)");
+        $sql->bind_param("is", $recipeId, $imageName);
+        
+        if (!$sql->execute()) {
+            throw new Exception("Erro ao adicionar imagem: " . $sql->error);
+        }
+
+        return true;
     }
 }

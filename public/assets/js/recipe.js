@@ -9,9 +9,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getRecipeById&id=${id}`);
         const data = await response.json();
         const recipe = data.data;
-        const ingredients = recipe.ingredients
+        const images = recipe.images || [];
+        const ingredients = recipe.ingredients || [];
+        const preparation_steps = recipe.preparation_steps || [];
 
-        console.log(recipe)
+        console.log(recipe);
+
+        const image = document.createElement('img');
+        image.src = `/MasterCheaf/uploads/recipes/${images[0]}`;
+        document.getElementById('recipe-details').appendChild(image);
+
 
         const recipeTitle = document.createElement('h2');
         recipeTitle.textContent = recipe.name;
@@ -30,6 +37,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         document.getElementById('recipe-details').appendChild(ingredientsList);
+
+        const preparationStepsList = document.createElement('ol');
+
+        preparation_steps.forEach(step => {
+            const stepItem = document.createElement('li');
+            stepItem.textContent = `${step.description}`;
+            preparationStepsList.appendChild(stepItem);
+        });
+        document.getElementById('recipe-details').appendChild(preparationStepsList);
+
     }
     else {
         const IngredientSelect = document.getElementById("recipe-ingredients");
@@ -68,3 +85,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+document.getElementById('addStepButton').addEventListener('click', ()=> {
+    const div = document.getElementById('steps-container');
+    const stepCount = div.querySelectorAll('input').length + 1;
+    const label = document.createElement('label');
+    label.setAttribute('for', `step-${stepCount}`);
+    label.textContent = stepCount;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = `step-${stepCount}`;
+    input.name = 'recipe-preparation-steps[]';
+    div.appendChild(label);
+    div.appendChild(input);
+})

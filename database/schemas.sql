@@ -33,12 +33,6 @@ create table if not exists `recipe_ingredients` (
 
 insert into `users` (username, password_hash) values ('admin', '1234')
 
-insert into `recipes` (name, description) values ('Pasta Carbonara', 'A classic Italian pasta dish with eggs, cheese, pancetta, and black pepper.');
-
-insert into ingredients (name) values ('Pasta'), ('Eggs'), ('Cheese'), ('Pancetta'), ('Black Pepper');
-
-insert into recipe_ingredients (recipe_id, ingredient_id) values (1, 1), (1, 2), (1, 3), (1, 4), (1, 5);
-
 create table if not exists `images` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
   `recipe_id` int NOT NULL,
@@ -46,6 +40,15 @@ create table if not exists `images` (
   FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-insert into images (recipe_id, image_name) values (1, 'pasta_carbonara.jpg'), (1, 'pasta_carbonara2.jpg');
+create table if not exists `preparation_steps` (
+  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `recipe_id` int NOT NULL,
+  `step_number` int NOT NULL,
+  `description` text NOT NULL,
+  FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-delete from images where id = 1;
+
+
+
+
