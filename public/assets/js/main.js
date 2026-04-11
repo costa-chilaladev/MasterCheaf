@@ -19,7 +19,7 @@ const loadRecipes = async () => {
     
     recipes.forEach(recipe => {
         const destinationPageLink = document.createElement('a');
-        destinationPageLink.href = `/MasterCheaf/public/recipe.php?id=${recipe.id}`;
+        destinationPageLink.href = `/MasterCheaf/public/recipe.html?id=${recipe.id}`;
 
         const recipeElement = document.createElement('article');
         const figure = document.createElement('figure');
@@ -28,18 +28,21 @@ const loadRecipes = async () => {
 
         createCarroussel(recipeElement, images, recipe.name);
 
-        recipeElement.appendChild(figure);
+        
         const title = document.createElement('h2');
         title.textContent = recipe.name;
-        recipeElement.appendChild(title);
 
         const description = document.createElement('p');
         description.textContent = recipe.description;
-        recipeElement.appendChild(description);
         recipeElement.setAttribute("class", "recipe-card");
+
+        destinationPageLink.appendChild(figure);
+        destinationPageLink.appendChild(title);
+        destinationPageLink.appendChild(description);
         
-        destinationPageLink.appendChild(recipeElement);
-        document.getElementById('recipes-grade').appendChild(destinationPageLink);
+        recipeElement.appendChild(destinationPageLink)
+    
+        document.getElementById('recipes-grade').appendChild(recipeElement);
     })
 };
 
