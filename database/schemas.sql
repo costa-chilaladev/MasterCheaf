@@ -35,8 +35,6 @@ create table if not exists `recipe_ingredients` (
   FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-insert into `users` (username, email, password_hash) values ('admin', 'admin@example.com', '1234');
-
 create table if not exists `images` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
   `recipe_id` int NOT NULL,
@@ -51,6 +49,30 @@ create table if not exists `preparation_steps` (
   `description` text NOT NULL,
   FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+create table if not exists `categorys` (
+  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `name` varchar(250) not null,
+  `type` VARCHAR(50) not null
+)
+
+INSERT INTO `categorys` (`name`, `type`) VALUES
+-- tipo de prato
+('Sweet', 'type'),
+('Savory', 'type'),
+('Breakfast', 'meal'),
+('Lunch', 'meal'),
+('Dinner', 'meal'),
+('Dessert', 'meal'),
+('Snack', 'meal'),
+('Christmas', 'occasion'),
+('Party', 'occasion'),
+('Everyday', 'occasion'),
+('Healthy', 'attribute'),
+('Quick', 'attribute'),
+('Vegetarian', 'attribute'),
+('Vegan', 'attribute'),
+('Gluten-Free', 'attribute');
 
 
 

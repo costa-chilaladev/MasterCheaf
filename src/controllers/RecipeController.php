@@ -4,7 +4,7 @@
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/config/database.php';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/src/models/Recipe.php';
 
-    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById"];
+    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById", "getAllRecipesBasedOnSearch"];
     $action = $_GET["action"] ?? '';
 
     if (in_array($action, $actions)) {
@@ -68,6 +68,13 @@
                     $recipe = $recipeModel->getRecipeById($id);
 
                     echo json_encode(["success" => true, "data" => $recipe]);
+                    break;
+
+                case "getAllRecipesBasedOnSearch":
+                    $search = $_GET["search"] ?? "";
+                    $recipes = $recipeModel->getAllRecipesBasedOnSearch($search);
+
+                    echo json_encode(["success" => true, "data" => $recipes]);
                     break;
             }
         } catch (Exception $e) {

@@ -33,6 +33,48 @@ class Recipe {
         return $result;
     }
 
+    public function getAllRecipesBasedOnSearch($search) {
+        $search = "%$search%";
+
+        $stmt = $this->db->prepare("
+            SELECT * FROM recipes 
+            WHERE name LIKE ?
+            ORDER BY name ASC
+            LIMIT 20
+        ");
+
+        $stmt->bind_param("s", $search);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $recipes = [];
+
+        while ($row = $result->fetch_assoc()) {
+
+            $id = $row['id'];
+            $images = [];
+
+            $imgStmt = $this->db->prepare("
+                SELECT image_name 
+                FROM images 
+                WHERE recipe_id = ?
+            ");
+
+            $imgStmt->bind_param("i", $id);
+            $imgStmt->execute();
+            $imageResult = $imgStmt->get_result();
+
+            while ($imageRow = $imageResult->fetch_assoc()) {
+                $images[] = $imageRow['image_name'];
+            }
+
+            $row['images'] = $images;
+            $recipes[] = $row;
+        }
+
+        return $recipes;
+    }
+
     public function getAllIngredients() {
         $sql = $this->db->prepare("SELECT * FROM ingredients");
         $sql->execute();

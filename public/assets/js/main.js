@@ -17,6 +17,24 @@ const loadRecipes = async () => {
         return;
     }
     
+    showRecipes(recipes, document.getElementById("recipes-grade"))
+    
+};
+
+loadRecipes();
+
+document.getElementById("search-btn").addEventListener("click", async () => {
+    const search = document.getElementById("search-input").value
+    console.log(search)
+    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipesBasedOnSearch&search=${encodeURIComponent(search)}`)
+    const data = await response.json()
+    const recipes = data.data
+
+    showRecipes(recipes, document.getElementById("recipes-grade"))
+})
+
+function showRecipes(recipes, container) {
+    container.innerHTML = ""
     recipes.forEach(recipe => {
         const destinationPageLink = document.createElement('a');
         destinationPageLink.href = `/MasterCheaf/public/recipe.html?id=${recipe.id}`;
@@ -42,11 +60,6 @@ const loadRecipes = async () => {
         
         recipeElement.appendChild(destinationPageLink)
     
-        document.getElementById('recipes-grade').appendChild(recipeElement);
+        container.appendChild(recipeElement);
     })
-};
-
-loadRecipes();
-
-
-
+}
