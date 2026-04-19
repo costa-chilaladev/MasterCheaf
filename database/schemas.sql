@@ -5,6 +5,7 @@ use mastercheaf_aoa;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL UNIQUE,
   `password_hash` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -15,6 +16,9 @@ create table if not exists `recipes` (
   `description` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+alter table recipes add column user_id int(11) not null;
+alter table recipes add foreign key (user_id) references users(id) on delete cascade;
 
 create table if not exists `ingredients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -31,7 +35,7 @@ create table if not exists `recipe_ingredients` (
   FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-insert into `users` (username, password_hash) values ('admin', '1234')
+insert into `users` (username, email, password_hash) values ('admin', 'admin@example.com', '1234');
 
 create table if not exists `images` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
@@ -47,6 +51,7 @@ create table if not exists `preparation_steps` (
   `description` text NOT NULL,
   FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 

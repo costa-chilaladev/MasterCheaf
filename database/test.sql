@@ -1,9 +1,9 @@
 use mastercheaf_aoa;
 
-select * from recipes;
+select * from users;
 
 select * from recipes;
 
 show tables;
 
-delete from recipes where id = 19;
+delete from users where id = 5;

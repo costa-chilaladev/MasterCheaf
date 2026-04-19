@@ -8,6 +8,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
       // Configura o # para a pasta public
       '#': path.resolve(__dirname, './public'),
+
+      '$js': path.resolve(__dirname, './public/assets/js'),
     },
   },
   server: {

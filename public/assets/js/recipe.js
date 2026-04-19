@@ -46,19 +46,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
     else {
-        const IngredientSelect = document.getElementById("recipe-ingredients");
+        const ingredientContainer = document.getElementById('ingredients-container');
+        const addIngredientButton = document.getElementById('addIngredientButton');
 
         // Fetch ingredients from the API
         const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllIngredients`);
         const data = await response.json();
         const ingredients = data.data
 
-        ingredients.forEach(ingredient => {
-            const option = document.createElement("option");
-            option.value = ingredient.id;
-            option.textContent = ingredient.name;
-            IngredientSelect.appendChild(option);
-        });   
+        
 
         document.getElementById('create-recipe-form').addEventListener('submit', async (e) => {
             e.preventDefault();

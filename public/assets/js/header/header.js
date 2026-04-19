@@ -26,15 +26,7 @@ class myHeader extends HTMLElement {
     
     this.innerHTML = `
       <header style="background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between;">
-        <nav>
-          <a href="index.html" style="color: white; margin-right: 10px;">Home</a>
-          <a href="contato.html" style="color: white;">Contato</a>
-        </nav>
-        <div>
-          ${false 
-            ? '<button id="logout-btn">Sair</button>' 
-            : '<button id="login-btn">Fazer Login</button>'}
-        </div>
+        <a href="login.html?action=login">Login</a>
       </header>
     `;
 
