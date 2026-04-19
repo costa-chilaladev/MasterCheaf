@@ -55,5 +55,3 @@ create table if not exists `preparation_steps` (
 
 
 
-
-

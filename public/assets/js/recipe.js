@@ -54,6 +54,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await response.json();
         const ingredients = data.data
 
+        console.log(ingredients)
+
+        const dataList = document.createElement("datalist")
+        dataList.setAttribute("id", "ingredientsList")
+        ingredientContainer.appendChild(dataList)
+        
+        ingredients.forEach(ingredient => {
+            const option = document.createElement("option")
+            option.value = ingredient.id
+            option.textContent = ingredient.name
+
+            dataList.appendChild(option)
+        })
+
+        addIngredientButton.addEventListener("click", async () => {
+            const wrapper = document.createElement("div")
+            const deleteIngredientButton = document.createElement("button")
+            deleteIngredientButton.textContent = "x"
+
+            const input = document.createElement("input")
+            input.setAttribute("name", "recipe-ingredients[]")
+            input.setAttribute("list", "ingredientsList")
+
+            deleteIngredientButton.addEventListener("click", () => {
+                wrapper.remove()
+            })
+
+            wrapper.appendChild(input)  
+            wrapper.appendChild(deleteIngredientButton)
+            ingredientContainer.appendChild(wrapper)
+        })
+
         
 
         document.getElementById('create-recipe-form').addEventListener('submit', async (e) => {
