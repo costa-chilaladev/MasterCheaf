@@ -4,7 +4,7 @@
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/config/database.php';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/src/models/Recipe.php';
 
-    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById", "getAllRecipesBasedOnSearch"];
+    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById", "getAllRecipesBasedOnSearch", "getCategorys"];
     $action = $_GET["action"] ?? '';
 
     if (in_array($action, $actions)) {
@@ -25,12 +25,21 @@
                     $description = trim($_POST['recipe-description'] ?? '');
                     $ingredients = $_POST['recipe-ingredients'] ?? [];
                     $preparationSteps = $_POST['recipe-preparation-steps'] ?? [];
+                    $multipleChoiceType = $_POST['categories'] ?? [];
+                    $meal = $_POST['meal'] ?? ''; 
+                    $type = $_POST['type'] ?? '';
+
+                    $allCategories = array_filter(array_merge(
+                        [$meal],
+                        [$type],
+                        $multipleChoiceType
+                    ));
 
                     if (empty($name)) {
                         throw new Exception("Nome da receita é obrigatório");
                     }
 
-                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps);
+                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories);
                     $newRecipeId = $newRecipe;
 
                     if (!empty($_FILES['recipe-images'])) {
@@ -75,6 +84,12 @@
                     $recipes = $recipeModel->getAllRecipesBasedOnSearch($search);
 
                     echo json_encode(["success" => true, "data" => $recipes]);
+                    break;
+
+                case "getCategorys":
+                    $categorys = $recipeModel->getCategorys();
+
+                    echo json_encode(["success" => true, "data" => $categorys]);
                     break;
             }
         } catch (Exception $e) {

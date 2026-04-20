@@ -25,8 +25,9 @@ class myHeader extends HTMLElement {
     //const logged = this.isLoggedIn();
     
     this.innerHTML = `
-      <header style="background: #333; color: white; padding: 1rem; display: flex; justify-content: space-between;">
-        <a href="login.html?action=login">Login</a>
+      <header style="color: white; padding: 1rem; display: flex; justify-content: space-between;">
+        <a href="login.html">Login</a>
+        <a href="createRecipe.html">create recipe</a>
       </header>
     `;
 

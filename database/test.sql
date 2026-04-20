@@ -1,6 +1,6 @@
 use mastercheaf_aoa;
 
-select * from categorys;
+select * from recipe_categories;
 
 select * from recipes;
 

@@ -88,7 +88,7 @@ class Recipe {
         return $result;
     }
 
-    public function createRecipe($name, $description, $ingredients, $preparationSteps) {
+    public function createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories) {
         $sql = $this->db->prepare("INSERT INTO recipes (name, description) VALUES (?, ?)");
         $sql->bind_param("ss", $name, $description);
         
@@ -105,6 +105,18 @@ class Recipe {
             if (!$sql->execute()) {
                 throw new Exception("Erro ao associar ingrediente: " . $sql->error);
             }
+        }
+
+        $stmt = $this->db->prepare("
+            INSERT INTO recipe_categories (recipe_id, category_id) 
+            VALUES (?, ?)
+        ");
+
+        foreach ($allCategories as $category) {
+            if (!is_numeric($category)) continue;
+            
+            $stmt->bind_param("ii", $id, $category);
+            $stmt->execute();
         }
 
         foreach ($preparationSteps as $index => $stepDescription) {
@@ -179,5 +191,19 @@ class Recipe {
         }
 
         return true;
+    }
+
+    public function getCategorys() {
+        $sql = $this->db->prepare("SELECT * FROM categorys");
+        if (!$sql->execute()) {
+            throw new Exception("Error getting categorys: " . $sql->error);
+        }
+        $result = $sql->get_result();
+
+        while($category = $result->fetch_assoc()) {
+            $categorys[] = $category;
+        }
+
+        return $categorys;
     }
 }

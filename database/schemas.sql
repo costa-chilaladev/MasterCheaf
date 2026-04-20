@@ -74,7 +74,16 @@ INSERT INTO `categorys` (`name`, `type`) VALUES
 ('Vegan', 'attribute'),
 ('Gluten-Free', 'attribute');
 
+CREATE TABLE IF NOT EXISTS `recipe_categories` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `recipe_id` INT NOT NULL,
+  `category_id` INT NOT NULL,
 
+  FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`),
+  FOREIGN KEY (`category_id`) REFERENCES `categorys`(`id`),
+
+  UNIQUE (`recipe_id`, `category_id`)
+);
 
 
 

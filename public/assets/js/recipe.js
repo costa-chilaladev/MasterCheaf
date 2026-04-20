@@ -46,16 +46,52 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
     else {
+        const categorysContainer = document.getElementById("categorys-container")
         const ingredientContainer = document.getElementById('ingredients-container');
         const addIngredientButton = document.getElementById('addIngredientButton');
+        const singleChoiceTypes = ["meal", "type"];
 
         // Fetch ingredients from the API
         const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllIngredients`);
         const data = await response.json();
         const ingredients = data.data
 
-        
+        const categorysResponse = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCategorys`)
+        const categorysJson = await categorysResponse.json()
+        const categorys = categorysJson.data
 
+        const containers = {}
+
+        categorys.forEach(category => {
+
+            // criar container do tipo se não existir
+            if (!containers[category.type]) {
+                const div = document.createElement("div")
+                div.id = category.type
+
+                const title = document.createElement("h3")
+                title.textContent = category.type
+
+                div.appendChild(title)
+                categorysContainer.appendChild(div)
+
+                containers[category.type] = div
+            }
+
+            // criar input
+            const input = document.createElement("input")
+            input.type = (singleChoiceTypes.includes(category.type)) ? "radio" : "checkbox"
+            input.name = (singleChoiceTypes.includes(category.type)) ? category.type : "categories[]"
+            input.value = category.id
+
+            const label = document.createElement("label")
+            label.textContent = category.name
+
+            containers[category.type].appendChild(input)
+            containers[category.type].appendChild(label)
+        })
+
+        
         document.getElementById('create-recipe-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
