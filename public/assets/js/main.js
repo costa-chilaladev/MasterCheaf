@@ -1,5 +1,6 @@
-import { createCarroussel } from "#/assets/js/utils/recipeUtils.js";
-import { getPossibleCategories, getPossibleIngredients } from "./apis/recipeApi";
+import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
+import { getPossibleCategories, getPossibleIngredients } from "$js/apis/recipeApi.js";
+import { renderCategoriesForm } from "$js/models/recipeUtils.js"
 
 const container = document.getElementById("recipes-grade");
 const searchInput = document.getElementById("search-input");
@@ -10,7 +11,7 @@ const filterSection = document.getElementById("filter-section");
 
 if (window.API_BASE) Object.freeze(window.API_BASE);
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     loadRecipes();
     
     searchBtn.addEventListener("click", async () => {
@@ -25,6 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
     filterBtn.addEventListener("click", () => {
         filterSection.classList.toggle("inactive")
     })
+
+    const categories = await getPossibleCategories()
+    renderCategoriesForm(categories, filterSection)
+
 });
 
 async function loadRecipes() {

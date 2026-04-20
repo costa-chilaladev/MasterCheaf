@@ -1,5 +1,6 @@
-import { createCarroussel } from "#/assets/js/utils/recipeUtils.js";
+import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
 import { getPossibleCategories, getPossibleIngredients } from "#/assets/js/apis/recipeApi.js";
+import { renderCategoriesForm } from "$js/models/recipeUtils.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -151,39 +152,6 @@ function renderPreparationSteps(preparationSteps, container){
         preparationStepsList.appendChild(stepItem);
     });
     container.appendChild(preparationStepsList);
-}
-
-function renderCategoriesForm(categories, container) {
-    
-    const containers = {}
-    const singleChoiceTypes = ["meal", "type"];
-
-
-    categories.forEach(category => {
-        if (!containers[category.type]) {
-            const div = document.createElement("div")
-            div.id = category.type
-
-            const title = document.createElement("h3")
-            title.textContent = category.type
-
-            div.appendChild(title)
-            container.appendChild(div)
-
-            containers[category.type] = div
-        }
-
-        const input = document.createElement("input")
-        input.type = (singleChoiceTypes.includes(category.type)) ? "radio" : "checkbox"
-        input.name = (singleChoiceTypes.includes(category.type)) ? category.type : "categories[]"
-        input.value = category.id
-
-        const label = document.createElement("label")
-        label.textContent = category.name
-
-        containers[category.type].appendChild(input)
-        containers[category.type].appendChild(label)
-    })
 }
 
 function setIngredientsToDatalist(ingredients, datalist) {
