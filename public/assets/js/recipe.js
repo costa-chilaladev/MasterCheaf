@@ -1,4 +1,4 @@
-import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
+import { createCarroussel } from "#/assets/js/utils/recipeUtils.js";
 import { getPossibleCategories, getPossibleIngredients } from "#/assets/js/apis/recipeApi.js";
 
 document.addEventListener("DOMContentLoaded", async () => {

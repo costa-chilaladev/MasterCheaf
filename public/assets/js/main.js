@@ -1,4 +1,4 @@
-import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
+import { createCarroussel } from "#/assets/js/utils/recipeUtils.js";
 import { getPossibleCategories, getPossibleIngredients } from "./apis/recipeApi";
 
 const container = document.getElementById("recipes-grade");
