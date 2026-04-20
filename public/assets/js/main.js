@@ -1,65 +1,103 @@
 import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
+import { getPossibleCategories, getPossibleIngredients } from "./apis/recipeApi";
 
-const loadRecipes = async () => {
-    // O Vite vai trocar o @ pelo caminho real na hora de rodar
-    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipes`);
-    const data = await response.json();
+const container = document.getElementById("recipes-grade");
+const searchInput = document.getElementById("search-input");
+const searchBtn = document.getElementById("search-btn");
 
-    if (!data.success) {
-        console.log("error fetching recipes:", data.message);
-        return;
-    }
+const filterBtn = document.getElementById("filter-btn");
+const filterSection = document.getElementById("filter-section");
 
-    const recipes = data.data;
+if (window.API_BASE) Object.freeze(window.API_BASE);
 
-    if (recipes.length === 0) {
-        console.log("No recipes found");
-        return;
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    loadRecipes();
     
-    showRecipes(recipes, document.getElementById("recipes-grade"))
-    
-};
+    searchBtn.addEventListener("click", async () => {
+        const searchTerm = searchInput.value.trim(); 
+        if (searchTerm) {
+            await search(searchTerm);
+        } else {
+            loadRecipes(); 
+        }
+    });
 
-loadRecipes();
-
-document.getElementById("search-btn").addEventListener("click", async () => {
-    const search = document.getElementById("search-input").value
-    console.log(search)
-    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipesBasedOnSearch&search=${encodeURIComponent(search)}`)
-    const data = await response.json()
-    const recipes = data.data
-
-    showRecipes(recipes, document.getElementById("recipes-grade"))
-})
-
-function showRecipes(recipes, container) {
-    container.innerHTML = ""
-    recipes.forEach(recipe => {
-        const destinationPageLink = document.createElement('a');
-        destinationPageLink.href = `/MasterCheaf/public/recipe.html?id=${recipe.id}`;
-
-        const recipeElement = document.createElement('article');
-        const figure = document.createElement('figure');
-
-        const images = recipe.images || [];
-
-        createCarroussel(recipeElement, images, recipe.name);
-
-        
-        const title = document.createElement('h2');
-        title.textContent = recipe.name;
-
-        const description = document.createElement('p');
-        description.textContent = recipe.description;
-        recipeElement.setAttribute("class", "recipe-card");
-
-        destinationPageLink.appendChild(figure);
-        destinationPageLink.appendChild(title);
-        destinationPageLink.appendChild(description);
-        
-        recipeElement.appendChild(destinationPageLink)
-    
-        container.appendChild(recipeElement);
+    filterBtn.addEventListener("click", () => {
+        filterSection.classList.toggle("inactive")
     })
+});
+
+async function loadRecipes() {
+    try {
+        const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipes`);
+        
+        if (!response.ok) throw new Error("Falha na comunicação com o servidor.");
+
+        const data = await response.json();
+        if (!data.success) throw new Error("Não foi possível carregar as receitas.");
+
+        renderRecipes(data.data || []);
+    } catch (error) {
+        console.error("Erro interno:", error);
+        container.innerHTML = `<p class="error">Ocorreu um erro ao carregar o conteúdo. Tente mais tarde.</p>`;
+    }
+}
+
+async function search(searchTerm) {
+    const recipes = await getSearchResults(searchTerm);
+    renderRecipes(recipes);
+}
+
+function renderRecipes(recipes) {
+    container.innerHTML = ""; 
+    
+    if (!recipes || recipes.length === 0) {
+        const noResults = document.createElement("p");
+        noResults.textContent = "Nenhuma receita encontrada.";
+        container.appendChild(noResults);
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    recipes.forEach(recipe => {
+        fragment.appendChild(createRecipeCard(recipe));
+    });
+    container.appendChild(fragment);
+}
+
+async function getSearchResults(searchTerm) {
+    try {
+        const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipesBasedOnSearch&search=${encodeURIComponent(searchTerm)}`);
+        
+        if (!response.ok) return [];
+        
+        const data = await response.json();
+        return data.data || [];
+    } catch (error) {
+        console.error("Erro na busca:", error);
+        return []; 
+    }
+}
+
+function createRecipeCard(recipe) {
+    const destinationPageLink = document.createElement('a');
+    const recipeId = encodeURIComponent(recipe.id);
+    destinationPageLink.href = `/MasterCheaf/public/recipe.html?id=${recipeId}`;
+
+    const recipeElement = document.createElement('article');
+    recipeElement.className = "recipe-card";
+
+    const images = Array.isArray(recipe.images) ? recipe.images : [];
+    createCarroussel(recipeElement, images, recipe.name);
+    
+    const title = document.createElement('h2');
+    title.textContent = recipe.name || "Receita sem título";
+
+    const description = document.createElement('p');
+    description.textContent = recipe.description || "Sem descrição disponível.";
+
+    destinationPageLink.append(title, description);
+    recipeElement.appendChild(destinationPageLink);
+
+    return recipeElement;
 }

@@ -1,4 +1,5 @@
 import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
+import { getPossibleCategories, getPossibleIngredients } from "#/assets/js/apis/recipeApi.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -6,81 +7,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (params.has('id')) {
         const id = params.get('id');
-        
-        const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getRecipeById&id=${id}`);
-        const data = await response.json();
-        const recipe = data.data;
+
+        const recipeDetailsContainer = document.getElementById('recipe-details')
+        const imageContainer = document.getElementById('image-container')
+        const categoriesContainer = document.getElementById("categories")
+    
+        const allRecipeDetails = await getRecipeDetails(id)
+        const recipe = allRecipeDetails.recipeInfo
+        const categories = allRecipeDetails.categories 
+
         const images = recipe.images || [];
         const ingredients = recipe.ingredients || [];
-        const preparation_steps = recipe.preparation_steps || [];
+        const preparationSteps = recipe.preparation_steps || [];
 
-        createCarroussel(document.getElementById('image-container'), images, recipe.name);
-
-        const fetchedCategorys = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCategoriesByRecipeId&id=${id}`)
-        const thisRecipeCategories = await fetchedCategorys.json()
-        const categories = thisRecipeCategories.data 
-
-        categories.forEach(category => {  
-            const span = document.createElement("span")
-            span.textContent = category
-            document.getElementById("categories").appendChild(span)
-        })
-
-        const recipeTitle = document.createElement('h2');
-        recipeTitle.textContent = recipe.name;
-        document.getElementById('recipe-details').appendChild(recipeTitle);
-
-        const recipeDescription = document.createElement('p');
-        recipeDescription.textContent = recipe.description;
-        document.getElementById('recipe-details').appendChild(recipeDescription);
-
-        const ingredientsList = document.createElement('ol');
-
-        ingredients.forEach(ingredient => {
-            const ingredientItem = document.createElement('li');
-            ingredientItem.textContent = `${ingredient.name}`;
-            ingredientsList.appendChild(ingredientItem);
-        });
-
-        document.getElementById('recipe-details').appendChild(ingredientsList);
-
-        const preparationStepsList = document.createElement('ol');
-
-        preparation_steps.forEach(step => {
-            const stepItem = document.createElement('li');
-            stepItem.textContent = `${step.description}`;
-            preparationStepsList.appendChild(stepItem);
-        });
-        document.getElementById('recipe-details').appendChild(preparationStepsList);
+        createCarroussel(imageContainer, images, recipe.name);
+        renderCategories(categories, categoriesContainer)
+        renderRecipeTitleAndDescription(recipe.name, recipe.description, recipeDetailsContainer)
+        renderIngredients(ingredients, recipeDetailsContainer)
+        renderPreparationSteps(preparationSteps, recipeDetailsContainer)  
 
     }
     else {
-        const categorysContainer = document.getElementById("categorys-container")
+        const categoriesContainer = document.getElementById("categories-container")
         const ingredientContainer = document.getElementById('ingredients-container');
         const addIngredientButton = document.getElementById('addIngredientButton');
-        const singleChoiceTypes = ["meal", "type"];
 
-        // Fetch ingredients from the API
-        const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllIngredients`);
-        const data = await response.json();
-        const ingredients = data.data
-
-        const categorysResponse = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCategorys`)
-        const categorysJson = await categorysResponse.json()
-        const categorys = categorysJson.data
-        console.log(ingredients)
+        const categories = await getPossibleCategories()
+        const ingredients = await getPossibleIngredients()
 
         const dataList = document.createElement("datalist")
         dataList.setAttribute("id", "ingredientsList")
         ingredientContainer.appendChild(dataList)
         
-        ingredients.forEach(ingredient => {
-            const option = document.createElement("option")
-            option.value = ingredient.id
-            option.textContent = ingredient.name
-
-            dataList.appendChild(option)
-        })
+        setIngredientsToDatalist(ingredients, dataList)
 
         addIngredientButton.addEventListener("click", async () => {
             const wrapper = document.createElement("div")
@@ -100,38 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             ingredientContainer.appendChild(wrapper)
         })
 
-        
-
-        const containers = {}
-
-        categorys.forEach(category => {
-
-            // criar container do tipo se não existir
-            if (!containers[category.type]) {
-                const div = document.createElement("div")
-                div.id = category.type
-
-                const title = document.createElement("h3")
-                title.textContent = category.type
-
-                div.appendChild(title)
-                categorysContainer.appendChild(div)
-
-                containers[category.type] = div
-            }
-
-            // criar input
-            const input = document.createElement("input")
-            input.type = (singleChoiceTypes.includes(category.type)) ? "radio" : "checkbox"
-            input.name = (singleChoiceTypes.includes(category.type)) ? category.type : "categories[]"
-            input.value = category.id
-
-            const label = document.createElement("label")
-            label.textContent = category.name
-
-            containers[category.type].appendChild(input)
-            containers[category.type].appendChild(label)
-        })
+        renderCategoriesForm(categories, categoriesContainer)
 
         
         document.getElementById('create-recipe-form').addEventListener('submit', async (e) => {
@@ -153,10 +81,122 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.log('Error creating recipe: ' + data.message);
             }
         })
+
+        document.getElementById('addStepButton').addEventListener('click', () => {
+            addStep()
+        })
     }
 });
 
-document.getElementById('addStepButton').addEventListener('click', () => {
+async function getRecipeDetails(id) {
+    try {
+        const result = {}
+
+        const recipeResponse = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getRecipeById&id=${id}`);
+        const recipeData = await recipeResponse.json();
+        const recipeInfo = recipeData.data
+
+        const categoriesResponse = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCategoriesByRecipeId&id=${id}`)
+        const categoriesData = await categoriesResponse.json()
+        const categoriesInfo = categoriesData.data
+        
+        result.recipeInfo = recipeInfo
+        result.categories = categoriesInfo
+
+        return result
+
+    }
+
+    catch {
+        console.log("Erro")
+    }
+}
+
+function renderCategories(categories, container) {
+    categories.forEach(category => {  
+        const span = document.createElement("span")
+        span.textContent = category
+        container.appendChild(span)
+    })
+}
+
+function renderRecipeTitleAndDescription(title, description, container) {
+    const recipeTitle = document.createElement('h2');
+    recipeTitle.textContent = title;
+    container.appendChild(recipeTitle); 
+
+    const recipeDescription = document.createElement('p');
+    recipeDescription.textContent = description;
+    container.appendChild(recipeDescription);
+}
+
+function renderIngredients(ingredients, container){
+    const ingredientsList = document.createElement('ol');
+
+    ingredients.forEach(ingredient => {
+        const ingredientItem = document.createElement('li');
+        ingredientItem.textContent = `${ingredient.name}`;
+        ingredientsList.appendChild(ingredientItem);
+    });
+
+    container.appendChild(ingredientsList);
+}
+
+function renderPreparationSteps(preparationSteps, container){
+    const preparationStepsList = document.createElement('ol');
+
+    preparationSteps.forEach(step => {
+        const stepItem = document.createElement('li');
+        stepItem.textContent = `${step.description}`;
+        preparationStepsList.appendChild(stepItem);
+    });
+    container.appendChild(preparationStepsList);
+}
+
+function renderCategoriesForm(categories, container) {
+    
+    const containers = {}
+    const singleChoiceTypes = ["meal", "type"];
+
+
+    categories.forEach(category => {
+        if (!containers[category.type]) {
+            const div = document.createElement("div")
+            div.id = category.type
+
+            const title = document.createElement("h3")
+            title.textContent = category.type
+
+            div.appendChild(title)
+            container.appendChild(div)
+
+            containers[category.type] = div
+        }
+
+        const input = document.createElement("input")
+        input.type = (singleChoiceTypes.includes(category.type)) ? "radio" : "checkbox"
+        input.name = (singleChoiceTypes.includes(category.type)) ? category.type : "categories[]"
+        input.value = category.id
+
+        const label = document.createElement("label")
+        label.textContent = category.name
+
+        containers[category.type].appendChild(input)
+        containers[category.type].appendChild(label)
+    })
+}
+
+function setIngredientsToDatalist(ingredients, datalist) {
+        ingredients.forEach(ingredient => {
+            const option = document.createElement("option")
+            option.value = ingredient.id
+            option.textContent = ingredient.name
+
+            datalist.appendChild(option)
+        })
+}
+
+function addStep() {
     const div = document.getElementById('steps-container');
     const stepCount = div.querySelectorAll('input').length + 1;
     const label = document.createElement('label');
@@ -168,11 +208,7 @@ document.getElementById('addStepButton').addEventListener('click', () => {
     input.name = 'recipe-preparation-steps[]';
     div.appendChild(label);
     div.appendChild(input);
-})
-
-
-function getRecipeDetails(id) {
-    
 }
+
 
 

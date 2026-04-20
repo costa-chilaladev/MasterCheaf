@@ -11,3 +11,8 @@
 img {
     max-width: 320px;
 }
+
+.inactive {
+    display: none;
+}
+
