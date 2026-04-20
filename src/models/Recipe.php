@@ -206,4 +206,37 @@ class Recipe {
 
         return $categorys;
     }
+
+    public function getRecipeCategories($id) {
+        $recipe_categories = [];
+        $categories = [];
+
+        $sql = $this->db->prepare("SELECT * FROM recipe_categories WHERE recipe_id = ?");
+        $sql->bind_param("i", $id);
+        $sql->execute();
+        $result = $sql->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $recipe_categories[] = $row;
+        }
+
+        if (empty($recipe_categories)) {
+            return [];
+        }
+
+        $categoriesIds = array_column($recipe_categories, 'category_id');
+
+        foreach ($categoriesIds as $category) {
+            $stmt = $this->db->prepare("SELECT name FROM categorys WHERE id = ?");
+            $stmt->bind_param("i", $category);
+            $stmt->execute();
+
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                $categories[] = $row['name'];
+            }
+        }
+
+        return $categories;
+    }
 }

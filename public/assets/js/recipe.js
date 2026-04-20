@@ -16,6 +16,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         createCarroussel(document.getElementById('image-container'), images, recipe.name);
 
+        const fetchedCategorys = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCategoriesByRecipeId&id=${id}`)
+        const thisRecipeCategories = await fetchedCategorys.json()
+        const categories = thisRecipeCategories.data 
+
+        categories.forEach(category => {  
+            const span = document.createElement("span")
+            span.textContent = category
+            document.getElementById("categories").appendChild(span)
+        })
 
         const recipeTitle = document.createElement('h2');
         recipeTitle.textContent = recipe.name;
@@ -160,3 +169,10 @@ document.getElementById('addStepButton').addEventListener('click', () => {
     div.appendChild(label);
     div.appendChild(input);
 })
+
+
+function getRecipeDetails(id) {
+    
+}
+
+
