@@ -6,4 +6,4 @@ select * from recipes;
 
 show tables;
 
-delete from users where id = 5;
+delete from recipes where id > 5;

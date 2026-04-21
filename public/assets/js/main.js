@@ -71,17 +71,46 @@ function renderRecipes(recipes) {
 }
 
 async function getSearchResults(searchTerm) {
-    try {
-        const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipesBasedOnSearch&search=${encodeURIComponent(searchTerm)}`);
-        
-        if (!response.ok) return [];
-        
-        const data = await response.json();
-        return data.data || [];
-    } catch (error) {
-        console.error("Erro na busca:", error);
-        return []; 
-    }
+
+    const formData = new FormData()
+
+    formData.append("searchTerm", searchTerm)
+
+    const inputs = document.querySelectorAll(
+    'input[type="checkbox"], input[type="radio"]'
+    )
+
+    const names = [...new Set(
+    Array.from(inputs).map(input => input.name)
+    )]
+
+    names.forEach(name => {
+        const elements = document.querySelectorAll(`input[name="${name}"]`)
+
+        if (elements[0].type === 'radio') {
+            const selected = document.querySelector(`input[name="${name}"]:checked`)
+            if (selected) {
+                formData.append(name, selected.value)
+            }
+        }
+
+        if (elements[0].type === 'checkbox') {
+            const checked = document.querySelectorAll(`input[name="${name}"]:checked`)
+            
+            checked.forEach(el => {
+            formData.append(name, el.value)
+            })
+        }
+    })
+
+    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getAllRecipesBasedOnSearchAnFilter`, {
+        method: 'POST',
+        body: formData
+    });
+    const data = response.json()
+    console.log(data)
+
+    
 }
 
 function createRecipeCard(recipe) {

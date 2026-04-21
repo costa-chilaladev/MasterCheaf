@@ -4,7 +4,7 @@
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/config/database.php';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/src/models/Recipe.php';
 
-    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById", "getAllRecipesBasedOnSearch", "getCategorys", "getCategoriesByRecipeId"];
+    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById", "getAllRecipesBasedOnSearchAnFilter", "getCategorys", "getCategoriesByRecipeId"];
     $action = $_GET["action"] ?? '';
 
     if (in_array($action, $actions)) {
@@ -79,9 +79,20 @@
                     echo json_encode(["success" => true, "data" => $recipe]);
                     break;
 
-                case "getAllRecipesBasedOnSearch":
-                    $search = $_GET["search"] ?? "";
-                    $recipes = $recipeModel->getAllRecipesBasedOnSearch($search);
+                case "getAllRecipesBasedOnSearchAnFilter":
+                    $searchTerm = trim($_POST['searchTerm'] ?? '');
+                    
+                    $multipleChoiceType = $_POST['categories'] ?? [];
+                    $meal = $_POST['meal'] ?? ''; 
+                    $type = $_POST['type'] ?? '';
+
+                    $allCategories = array_filter(array_merge(
+                        [$meal],
+                        [$type],
+                        $multipleChoiceType
+                    ));
+
+                    $recipes = $recipeModel->getAllRecipesBasedOnSearchAnFilter($searchTerm, $allCategories);
 
                     echo json_encode(["success" => true, "data" => $recipes]);
                     break;

@@ -33,21 +33,52 @@ class Recipe {
         return $result;
     }
 
-    public function getAllRecipesBasedOnSearch($search) {
+    public function getAllRecipesBasedOnSearchAnFilter($search, $categories) {
         $search = "%$search%";
+        $recipes = [];
 
-        $stmt = $this->db->prepare("
-            SELECT * FROM recipes 
-            WHERE name LIKE ?
-            ORDER BY name ASC
-            LIMIT 20
-        ");
+        // base da query
+        $sql = "
+            SELECT DISTINCT r.*
+            FROM recipes r
+        ";
 
-        $stmt->bind_param("s", $search);
+        $params = [];
+        $types = "";
+
+        // se houver categorias, faz JOIN
+        if (!empty($categories)) {
+            $placeholders = implode(',', array_fill(0, count($categories), '?'));
+
+            $sql .= "
+                JOIN recipe_categories rc ON rc.recipe_id = r.id
+                WHERE r.name LIKE ?
+                AND rc.category_id IN ($placeholders)
+            ";
+
+            $types .= "s" . str_repeat("i", count($categories));
+            $params[] = $search;
+
+            foreach ($categories as $cat) {
+                $params[] = $cat;
+            }
+        } else {
+            $sql .= "
+                WHERE r.name LIKE ?
+            ";
+
+            $types .= "s";
+            $params[] = $search;
+        }
+
+        $sql .= " ORDER BY r.name ASC LIMIT 20";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
 
         $result = $stmt->get_result();
-        $recipes = [];
 
         while ($row = $result->fetch_assoc()) {
 

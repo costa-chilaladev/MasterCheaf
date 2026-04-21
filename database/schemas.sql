@@ -85,4 +85,14 @@ CREATE TABLE IF NOT EXISTS `recipe_categories` (
   UNIQUE (`recipe_id`, `category_id`)
 );
 
+ALTER TABLE recipe_categories
+ADD CONSTRAINT recipe_categories_ibfk_1
+FOREIGN KEY (recipe_id)
+REFERENCES recipes(id)
+ON DELETE CASCADE,
+
+ADD CONSTRAINT recipe_categories_ibfk_2
+FOREIGN KEY (category_id)
+REFERENCES categorys(id)
+ON DELETE CASCADE;
 
