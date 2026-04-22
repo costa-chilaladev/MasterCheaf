@@ -9,6 +9,8 @@ document.getElementById("loginForm").addEventListener('submit', async (e) => {
     })
     .then(response => response.json())
     .then(data => {
-        window.location.href = "index.html"
+        if (data.success) {
+            window.location.href = "index.html"
+        }
     })
 })

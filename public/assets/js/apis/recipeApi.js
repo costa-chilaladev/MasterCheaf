@@ -1,3 +1,7 @@
+
+export const minRecipeNameCaracteres = 5
+export const minRecipeDescriptionCatacteres = 5
+
 export async function getPossibleCategories() {
     const result = {}
     

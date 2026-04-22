@@ -96,3 +96,4 @@ FOREIGN KEY (category_id)
 REFERENCES categorys(id)
 ON DELETE CASCADE;
 
+

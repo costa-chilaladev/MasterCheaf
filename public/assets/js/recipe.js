@@ -1,7 +1,11 @@
 import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
 import { getPossibleCategories, getPossibleIngredients } from "#/assets/js/apis/recipeApi.js";
-import { renderCategoriesForm } from "$js/models/recipeUtils.js";
+import { renderCategoriesForm } from "#/assets/js/models/recipeUtils.js";
+import { validateRecipeName,  validateRecipeDescription } from "#/assets/js/utils/auth.js";
+import { renderError } from "#/assets/js/models/renderMessages.js";
+import { minRecipeDescriptionCatacteres, minRecipeNameCaracteres } from "#/assets/js/apis/recipeApi.js";
 
+ 
 document.addEventListener("DOMContentLoaded", async () => {
 
     const params = new URLSearchParams(window.location.search);
@@ -32,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const categoriesContainer = document.getElementById("categories-container")
         const ingredientContainer = document.getElementById('ingredients-container');
         const addIngredientButton = document.getElementById('addIngredientButton');
+        const errorContainer = document.getElementById("error-container")
 
         const categories = await getPossibleCategories()
         const ingredients = await getPossibleIngredients()
@@ -67,6 +72,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             e.preventDefault();
 
             const formData = new FormData(e.target);
+
+            const imageFile = formData.get("image");
+
+            if (imageFile && imageFile.size > 0) {
+                const croppedBlob = await cropTo4x3(imageFile);
+
+                formData.set("image", croppedBlob, "recipe.webp");
+            }
+
+            const recipeName = formData.get("recipe-name")
+            const recipeDescr = formData.get("recipe-description")
+
+            errorContainer.innerHTML = ""
+
+            if (!validateRecipeName(recipeName)) {
+                renderError(errorContainer, `Error: Recipe name must have ${minRecipeNameCaracteres}+ caracteres`)
+                return
+            }
+
+            if (!validateRecipeDescription(recipeDescr)) {
+                renderError(errorContainer, `Error: Recipe description must have ${minRecipeDescriptionCatacteres}+ caracteres`)
+                return
+            }
             
             const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=createRecipe`, {
                 method: 'POST',
@@ -178,5 +206,56 @@ function addStep() {
     div.appendChild(input);
 }
 
+function cropTo4x3(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const targetRatio = 4 / 3;
+
+      let width = img.width;
+      let height = img.height;
+
+      const currentRatio = width / height;
+
+      let cropWidth, cropHeight, offsetX, offsetY;
+
+      if (currentRatio > targetRatio) {
+        cropHeight = height;
+        cropWidth = height * targetRatio;
+        offsetX = (width - cropWidth) / 2;
+        offsetY = 0;
+      } else {
+        cropWidth = width;
+        cropHeight = width / targetRatio;
+        offsetX = 0;
+        offsetY = (height - cropHeight) / 2;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 1200;
+      canvas.height = 900;
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        offsetX,
+        offsetY,
+        cropWidth,
+        cropHeight,
+        0,
+        0,
+        1200,
+        900
+      );
+
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, "image/webp");
+    };
+  });
+}
 
 
