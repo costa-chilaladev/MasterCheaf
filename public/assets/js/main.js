@@ -1,5 +1,5 @@
 import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
-import { getPossibleCategories, getPossibleIngredients } from "$js/apis/recipeApi.js";
+import { getPossibleCategories, getPossibleIngredients, saveRecipe } from "$js/apis/recipeApi.js";
 import { renderCategoriesForm } from "$js/models/recipeUtils.js"
 
 const container = document.getElementById("recipes-grade");
@@ -132,6 +132,7 @@ function createRecipeCard(recipe) {
 
     destinationPageLink.append(title, description);
     recipeElement.appendChild(destinationPageLink);
+    recipeElement.appendChild(saveButton)
 
     return recipeElement;
 }

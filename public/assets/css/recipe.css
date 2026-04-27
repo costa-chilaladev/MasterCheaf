@@ -1,0 +1,48 @@
+@charset "UTF-8";
+
+#interactionContainer button {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.favorite {
+    color: gray;
+}
+
+.save {
+    color: gray;
+}
+
+.favorite-active {
+    color: black;
+    background-color: yellow;
+    border-color: yellow;
+    font-weight: bold;
+}
+
+.save-active {
+    color: black;
+    background-color: aqua;
+    border-color: aqua;
+    font-weight: bold;
+}
+
+
+.rating {
+display: flex;
+flex-direction: row-reverse; 
+justify-content: flex-end;
+}
+.rating input { display: none; } 
+.rating label {
+cursor: pointer;
+font-size: 30px;
+color: #ccc;
+}
+
+.rating input:checked ~ label { color: #ffca08; }
+.rating label:hover, .rating label:hover ~ label { color: #ffca08; }
+

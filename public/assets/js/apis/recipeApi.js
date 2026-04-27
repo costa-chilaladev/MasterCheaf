@@ -19,3 +19,46 @@ export async function getPossibleIngredients() {
 
     return ingredients
 }
+
+export async function getMeasurements() {
+    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getMeasurements`)
+    const data = await response.json()
+    
+    if (data.success) {
+        return data.data
+    }
+    else {
+        return data.error
+    }   
+}
+
+export async function saveRecipe(id, option) {
+    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=recipeInteraction`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            recipeId: id,
+            option: option
+        })
+    })
+    
+    const data = await response.json()
+    console.log(data)
+}
+
+export async function fetchCommentsByRecipeId(recipeId) {
+    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCommentsByRecipeId`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            recipeId: recipeId
+        })
+    })
+
+    const data = response.json()
+    return data
+}

@@ -1,5 +1,7 @@
 <?php
-// models/recipe.php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
 class Recipe {
     private $db;
@@ -119,7 +121,7 @@ class Recipe {
         return $result;
     }
 
-    public function createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories) {
+    public function createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories, $measuraments, $ingredientNumbers) {
         $sql = $this->db->prepare("INSERT INTO recipes (name, description) VALUES (?, ?)");
         $sql->bind_param("ss", $name, $description);
         
@@ -128,15 +130,16 @@ class Recipe {
             exit();
         }
         
-        $id = $this->db->insert_id; // Retorna o ID da nova receita
-
-        foreach ($ingredients as $ingredientId) {
-            $sql = $this->db->prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id) VALUES (?, ?)");
-            $sql->bind_param("ii", $id, $ingredientId);
+        $id = $this->db->insert_id; 
+        $sql = $this->db->prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id, number, measurements_id) VALUES (?, ?, ?, ?)");
+        
+        array_map(function($ingredientId, $measurament, $ingredientNumber) use ($id, $sql) {
+            $sql->bind_param("iiii", $id, $ingredientId, $ingredientNumber, $measurament);
             if (!$sql->execute()) {
                 throw new Exception("Erro ao associar ingrediente: " . $sql->error);
             }
-        }
+
+        }, $ingredients, $measuraments, $ingredientNumbers);
 
         $stmt = $this->db->prepare("
             INSERT INTO recipe_categories (recipe_id, category_id) 
@@ -173,7 +176,15 @@ class Recipe {
             throw new Exception("Receita não encontrada");
         }
 
-        $stmt = $this->db->prepare("SELECT * from recipe_ingredients ri JOIN ingredients i ON ri.ingredient_id = i.id WHERE ri.recipe_id = ?");
+        $stmt = $this->db->prepare("SELECT 
+            ri.number, 
+            i.name AS ingredient_name, 
+            m.name AS measurement_name
+        FROM recipe_ingredients ri
+        JOIN ingredients i ON ri.ingredient_id = i.id
+        JOIN measurements m ON ri.measurements_id = m.id
+        WHERE ri.recipe_id = ?");
+
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $ingredientResult = $stmt->get_result();
@@ -209,6 +220,18 @@ class Recipe {
 
         $recipe['preparation_steps'] = $steps;
 
+        $stmt = $this->db->prepare("SELECT * FROM user_recipe_interactions where recipe_id = ? and active = 1");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $state = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $state[] = $row["type"];
+        }
+
+        $recipe["state"] = $state; 
 
         return $recipe;
     }
@@ -270,4 +293,60 @@ class Recipe {
 
         return $categories;
     }
+
+    public function getMeasurements() {
+        $stmt = $this->db->prepare("SELECT * FROM measurements");
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $row = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $measurements[] = $row;
+        }
+
+        return $measurements;
+    }
+
+    public function toggleInteraction($id, $option, $userId) {
+        if (!in_array($option, ['save', 'favorite'])) {
+            return ["error" => "Invalid option"];
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT active FROM user_recipe_interactions 
+            WHERE recipe_id = ? AND user_id = ? AND type = ?
+        ");
+        $stmt->bind_param("iis", $id, $userId, $option);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($row = $result->fetch_assoc()) {
+            $newState = $row["active"] ? 0 : 1;
+            $sql = $this->db->prepare("
+                UPDATE user_recipe_interactions SET active = ? 
+                WHERE recipe_id = ? AND user_id = ? AND type = ?
+            ");
+            $sql->bind_param("iiis", $newState, $id, $userId, $option);
+            $sql->execute();
+
+            return [
+                "active" => (bool)$newState,
+                "type" => $option
+            ];
+        }
+
+        $stmt = $this->db->prepare("
+            INSERT INTO user_recipe_interactions (recipe_id, user_id, type, active) 
+            VALUES (?, ?, ?, 1)
+        ");
+        $stmt->bind_param("iis", $id, $userId, $option);
+        $stmt->execute();
+
+        return [
+            "active" => true,
+            "type" => $option
+        ];
+    }
+
 }

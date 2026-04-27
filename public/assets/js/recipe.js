@@ -3,7 +3,7 @@ import { getPossibleCategories, getPossibleIngredients } from "#/assets/js/apis/
 import { renderCategoriesForm } from "#/assets/js/models/recipeUtils.js";
 import { validateRecipeName,  validateRecipeDescription } from "#/assets/js/utils/auth.js";
 import { renderError } from "#/assets/js/models/renderMessages.js";
-import { minRecipeDescriptionCatacteres, minRecipeNameCaracteres } from "#/assets/js/apis/recipeApi.js";
+import { minRecipeDescriptionCatacteres, minRecipeNameCaracteres, getMeasurements, saveRecipe, fetchCommentsByRecipeId } from "#/assets/js/apis/recipeApi.js";
 
  
 document.addEventListener("DOMContentLoaded", async () => {
@@ -16,20 +16,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         const recipeDetailsContainer = document.getElementById('recipe-details')
         const imageContainer = document.getElementById('image-container')
         const categoriesContainer = document.getElementById("categories")
+        const interactionContainer = document.createElement("div")
     
         const allRecipeDetails = await getRecipeDetails(id)
         const recipe = allRecipeDetails.recipeInfo
         const categories = allRecipeDetails.categories 
 
+        const states = recipe.state
+
         const images = recipe.images || [];
         const ingredients = recipe.ingredients || [];
         const preparationSteps = recipe.preparation_steps || [];
 
+        const comments = await fetchCommentsByRecipeId(id)
+        console.log(comments)
+
+        recipeDetailsContainer.appendChild(interactionContainer)
+
+        constructSaveAndFavoriteButton(id, interactionContainer, states)
         createCarroussel(imageContainer, images, recipe.name);
         renderCategories(categories, categoriesContainer)
         renderRecipeTitleAndDescription(recipe.name, recipe.description, recipeDetailsContainer)
         renderIngredients(ingredients, recipeDetailsContainer)
         renderPreparationSteps(preparationSteps, recipeDetailsContainer)  
+        renderComentarySection(recipeDetailsContainer, [])
+
+        document.querySelectorAll('.rating input').forEach(radio => {
+            radio.addEventListener('change', () => {
+                console.log("Nota selecionada:", radio.value);
+            });
+        });
 
     }
     else {
@@ -47,26 +63,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         setIngredientsToDatalist(ingredients, dataList)
 
+        const measurements = await getMeasurements()
+
         addIngredientButton.addEventListener("click", async () => {
             const wrapper = document.createElement("div")
             const deleteIngredientButton = document.createElement("button")
             deleteIngredientButton.textContent = "x"
 
+            const measurementsList = await getMeasurementsElementList(measurements)
+
             const input = document.createElement("input")
             input.setAttribute("name", "recipe-ingredients[]")
             input.setAttribute("list", "ingredientsList")
+            input.setAttribute("placeholder", "tomate")
+
+            const inputNumber = document.createElement("input")
+            inputNumber.setAttribute("name", "ingredient-number[]")
+            inputNumber.setAttribute("type", "number")
+            inputNumber.setAttribute("placeholder", "2")
 
             deleteIngredientButton.addEventListener("click", () => {
                 wrapper.remove()
             })
 
-            wrapper.appendChild(input)  
+            wrapper.appendChild(input) 
+            wrapper.appendChild(inputNumber)
+            wrapper.appendChild(measurementsList) 
             wrapper.appendChild(deleteIngredientButton)
             ingredientContainer.appendChild(wrapper)
         })
 
         renderCategoriesForm(categories, categoriesContainer)
-
         
         document.getElementById('create-recipe-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -164,7 +191,7 @@ function renderIngredients(ingredients, container){
 
     ingredients.forEach(ingredient => {
         const ingredientItem = document.createElement('li');
-        ingredientItem.textContent = `${ingredient.name}`;
+        ingredientItem.innerHTML = `${ingredient.number} ${ingredient.measurement_name} of ${ingredient.ingredient_name}`;
         ingredientsList.appendChild(ingredientItem);
     });
 
@@ -258,4 +285,75 @@ function cropTo4x3(file) {
   });
 }
 
+
+function getMeasurementsElementList(measurements) { 
+    const measurementsList = document.createElement("select")
+    measurementsList.setAttribute("name", "measuraments[]")
+
+    measurements.forEach(m => {
+        const option = document.createElement("option")
+        option.value = m.id
+        option.innerText = m.name
+        measurementsList.appendChild(option)
+    })
+
+    return measurementsList
+}
+
+async function constructSaveAndFavoriteButton(id, interactionContainer, states) {
+    const list = ["favorite", "save"]
+
+    list.forEach(element => {
+        const button = document.createElement("button")
+        button.textContent = element
+        button.classList.add(element)
+
+        states.forEach(state => {
+            if (state == element) {
+                button.classList.add(element + "-active")
+            }
+        })
+
+        button.addEventListener("click", () => {
+            button.classList.toggle(element + "-active")
+
+            saveRecipe(id, element)
+        })
+
+        interactionContainer.appendChild(button)
+    })
+}
+
+function renderComentarySection(recipeDetailsContainer, comentaries) {
+    const h2 = document.createElement("h2")
+    h2.textContent = "Comentary section"
+    recipeDetailsContainer.appendChild(h2)
+
+    const div = document.createElement("div")
+    div.classList.add("rating")
+
+    for (let i = 5; i >= 1; i--) {
+        const input = Object.assign(document.createElement("input"), {
+            type: "radio",
+            name: "star",
+            id: "star" + i,
+            value: i
+        })
+
+        const label = Object.assign(document.createElement("label"), {
+            htmlFor: "star" + i,
+            textContent: "★"
+        })
+
+        div.appendChild(input)
+        div.appendChild(label)
+    }
+
+    recipeDetailsContainer.appendChild(div)
+
+    comentaries.forEach(comentary => {
+
+    })
+    
+}
 

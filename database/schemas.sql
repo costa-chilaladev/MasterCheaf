@@ -26,6 +26,43 @@ create table if not exists `ingredients` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT IGNORE INTO `ingredients` (`name`) VALUES 
+('Salt'),
+('Sugar'),
+('Water'),
+('Olive oil'),
+('Vegetable oil'),
+('Garlic'),
+('Onion'),
+('Tomato'),
+('Flour'),
+('Butter'),
+('Milk'),
+('Lemon'),
+('Parsley'),
+('Cilantro'),
+('Basil'),
+('Oregano'),
+('Cinnamon'),
+('Honey'),
+('Vinegar'),
+('Chicken breast'),
+('Beef'),
+('Carrot'),
+('Potato'),
+('Bell pepper'),
+('Rice'),
+('Baking powder'),
+('Vanilla extract'),
+('Yeast'),
+('Cornstarch'),
+('Ginger'),
+('Soy sauce'),
+('Baking soda'),
+('Broth'),
+('Mustard'),
+('Ketchup');
+
 create table if not exists `recipe_ingredients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `recipe_id` int(11) NOT NULL,
@@ -96,4 +133,46 @@ FOREIGN KEY (category_id)
 REFERENCES categorys(id)
 ON DELETE CASCADE;
 
+CREATE TABLE IF NOT EXISTS `measurements` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(50) NOT NULL
+);
+
+INSERT INTO `measurements` (`name`)
+VALUES
+('gram (g)'),
+('kilogram (kg)'),
+('milliliter (ml)'),
+('liter (L)'),
+('tablespoon (tbsp)'),
+('teaspoon (tsp)'),
+('cup'),
+('unit'),
+('to taste'),
+('pinch');
+
+alter table `recipe_ingredients` add column `number` int not null;
+alter table `recipe_ingredients` add column `measurements_id` int not null; 
+
+CREATE TABLE IF NOT EXISTS `user_recipe_interactions` (
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  recipe_id INT NOT NULL,
+  user_id INT NOT NULL,
+  type ENUM('save', 'favorite') NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  active BOOLEAN DEFAULT TRUE,
+
+  CONSTRAINT recipe_user_relation UNIQUE (user_id, recipe_id, type)
+);
+
+CREATE TABLE IF NOT EXISTS `comments` (
+  `id` int not null AUTO_INCREMENT PRIMARY KEY,
+  `recipe_id` int not null,
+  `user_id` int not null,
+  `comment` text not null,
+  `rate` DECIMAL(2, 1) not null,
+
+  FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+)
 

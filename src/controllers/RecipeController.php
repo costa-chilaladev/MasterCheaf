@@ -1,10 +1,26 @@
 <?php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    $userId = $_SESSION["id"];
 
     // 1. Importa a conexão e o 
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/config/database.php';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/src/models/Recipe.php';
 
-    $actions = ["getAllRecipes", "createRecipe", "getAllIngredients", "getRecipeById", "getAllRecipesBasedOnSearchAnFilter", "getCategorys", "getCategoriesByRecipeId"];
+    $actions = [
+        "getAllRecipes", 
+        "createRecipe", 
+        "getAllIngredients",
+        "getRecipeById", 
+        "getAllRecipesBasedOnSearchAnFilter", 
+        "getCategorys", 
+        "getCategoriesByRecipeId", 
+        "getMeasurements",
+        "recipeInteraction",
+    ];
+
     $action = $_GET["action"] ?? '';
 
     if (in_array($action, $actions)) {
@@ -26,6 +42,8 @@
                     $ingredients = $_POST['recipe-ingredients'] ?? [];
                     $preparationSteps = $_POST['recipe-preparation-steps'] ?? [];
                     $multipleChoiceType = $_POST['categories'] ?? [];
+                    $ingredientNumbers = $_POST["ingredient-number"] ?? [];
+                    $measuraments = $_POST["measuraments"] ?? [];
                     $meal = $_POST['meal'] ?? ''; 
                     $type = $_POST['type'] ?? '';
 
@@ -39,7 +57,7 @@
                         throw new Exception("Nome da receita é obrigatório");
                     }
 
-                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories);
+                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories, $measuraments, $ingredientNumbers);
                     $newRecipeId = $newRecipe;
 
                     if (!empty($_FILES['recipe-images'])) {
@@ -108,6 +126,22 @@
                     $categories = $recipeModel->getRecipeCategories($id);
 
                     echo json_encode((["success" => true, "data" => $categories]));
+                    break;
+
+                case "getMeasurements":
+                    $measurements = $recipeModel->getMeasurements();
+
+                    echo json_encode(["success" => true, "data" => $measurements]);
+                    break;
+
+                case "recipeInteraction": 
+                    $data = json_decode(file_get_contents("php://input"), true);
+
+                    $recipeId = $data['recipeId'] ?? null;
+                    $option = $data['option'] ?? null;
+
+                    $response = $recipeModel->toggleInteraction($recipeId, $option, $userId);
+                    echo json_encode(["success" => true, "data" => $response]);
                     break;
             }
         } catch (Exception $e) {

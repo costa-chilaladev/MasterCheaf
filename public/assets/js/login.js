@@ -11,6 +11,8 @@ document.getElementById("loginForm").addEventListener('submit', async (e) => {
     .then(data => {
         if (data.success) {
             window.location.href = "index.html"
+        }else {
+            console.log(data)
         }
     })
 })
