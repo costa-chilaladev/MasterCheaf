@@ -165,7 +165,7 @@ class Recipe {
         return $id;
     }
 
-    public function getRecipeById($id) {
+    public function getRecipeById($id, $userId) {
         $sql = $this->db->prepare("SELECT * FROM recipes WHERE id = ?");
         $sql->bind_param("i", $id);
         $sql->execute();
@@ -232,6 +232,31 @@ class Recipe {
         }
 
         $recipe["state"] = $state; 
+
+        $stmt = $this->db->prepare("
+            SELECT 
+                c.*, 
+                u.username,     
+                (c.user_id = ?) AS is_mine 
+            FROM comments c
+            INNER JOIN users u ON c.user_id = u.id
+            WHERE c.recipe_id = ? 
+            AND c.active = 1
+            ORDER BY is_mine DESC, c.id DESC
+        ");
+
+
+        $stmt->bind_param("ii", $userId, $id);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $comments = [];
+
+        while ($comment = $result->fetch_assoc()) {
+            $comments[] = $comment;
+        }
+
+        $recipe["comments"] = $comments;
 
         return $recipe;
     }
@@ -349,4 +374,39 @@ class Recipe {
         ];
     }
 
+    public function deleteComment($commentId, $userId) {
+        $stmt = $this->db->prepare("UPDATE comments SET active = FALSE WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $commentId, $userId);
+        $stmt->execute();
+
+        return [
+            "Comment Deleted"
+        ];
+    }
+
+    public function addComment($recipeId, $userId, $comment, $rate) {
+        $stmt = $this->db->prepare("SELECT * FROM comments WHERE recipe_id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $recipeId, $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $stmt = $this->db->prepare("UPDATE comments SET active = TRUE, comment = ?, rate = ? WHERE user_id = ? and recipe_id = ?");
+            $stmt->bind_param("siii", $comment, $rate, $userId, $recipeId);
+            if ($stmt->execute()) {
+                return ["message" => "Comment added"];
+            } else {
+                return ["error" => "Failed to add comment"];
+            }
+        }
+        else {
+            $stmt = $this->db->prepare("INSERT INTO comments (recipe_id, user_id, comment, rate) VALUES (?,?,?,?)");
+            $stmt->bind_param("iisi", $recipeId, $userId, $comment, $rate);
+            if ($stmt->execute()) {
+                return ["message" => "Comment added"];
+            } else {
+                return ["error" => "Failed to add comment"];
+            }
+        }
+    }
 }

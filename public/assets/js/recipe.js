@@ -3,7 +3,10 @@ import { getPossibleCategories, getPossibleIngredients } from "#/assets/js/apis/
 import { renderCategoriesForm } from "#/assets/js/models/recipeUtils.js";
 import { validateRecipeName,  validateRecipeDescription } from "#/assets/js/utils/auth.js";
 import { renderError } from "#/assets/js/models/renderMessages.js";
-import { minRecipeDescriptionCatacteres, minRecipeNameCaracteres, getMeasurements, saveRecipe, fetchCommentsByRecipeId } from "#/assets/js/apis/recipeApi.js";
+import { minRecipeDescriptionCatacteres, minRecipeNameCaracteres, getMeasurements, saveRecipe } from "#/assets/js/apis/recipeApi.js";
+
+let recipeId = 0
+const recipeDetailsContainer = document.getElementById('recipe-details')
 
  
 document.addEventListener("DOMContentLoaded", async () => {
@@ -12,8 +15,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (params.has('id')) {
         const id = params.get('id');
+        recipeId = id
 
-        const recipeDetailsContainer = document.getElementById('recipe-details')
         const imageContainer = document.getElementById('image-container')
         const categoriesContainer = document.getElementById("categories")
         const interactionContainer = document.createElement("div")
@@ -28,8 +31,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const ingredients = recipe.ingredients || [];
         const preparationSteps = recipe.preparation_steps || [];
 
-        const comments = await fetchCommentsByRecipeId(id)
-        console.log(comments)
+        const comments = recipe.comments
+
 
         recipeDetailsContainer.appendChild(interactionContainer)
 
@@ -39,13 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderRecipeTitleAndDescription(recipe.name, recipe.description, recipeDetailsContainer)
         renderIngredients(ingredients, recipeDetailsContainer)
         renderPreparationSteps(preparationSteps, recipeDetailsContainer)  
-        renderComentarySection(recipeDetailsContainer, [])
-
-        document.querySelectorAll('.rating input').forEach(radio => {
-            radio.addEventListener('change', () => {
-                console.log("Nota selecionada:", radio.value);
-            });
-        });
+        createComentarySection(recipeDetailsContainer, comments, id)
 
     }
     else {
@@ -324,13 +321,110 @@ async function constructSaveAndFavoriteButton(id, interactionContainer, states) 
     })
 }
 
-function renderComentarySection(recipeDetailsContainer, comentaries) {
-    const h2 = document.createElement("h2")
-    h2.textContent = "Comentary section"
-    recipeDetailsContainer.appendChild(h2)
+function createComentarySection(recipeDetailsContainer, comments, id) { 
 
-    const div = document.createElement("div")
-    div.classList.add("rating")
+    const commentSection = document.createElement("section");
+    commentSection.setAttribute("id", "comments")
+    
+    const h2 = document.createElement("h2");
+    h2.textContent = "Secção de Comentários";
+    commentSection.appendChild(h2);
+
+    let userHaveCommented = false
+
+    if (comments.length < 1) {
+        const div = document.createElement("div")
+        div.innerHTML = "There is no comments"
+        recipeDetailsContainer.appendChild(div)
+        createUserCommentSection(recipeDetailsContainer, id)
+        return
+    }
+
+    comments.forEach(comment => {
+        const div = document.createElement("div");
+        div.classList.add("comment-item"); 
+
+        div.innerHTML = `
+            <span><strong>${comment.username}</strong></span>
+            <p>${comment.comment} (Nota: ${comment.rate})</p>
+        `;
+
+        const myCommentDiv = document.createElement("div")
+        myCommentDiv.innerHTML = `
+            <button class="edit-btn">Editar</button>
+            <button class="delete-btn">Apagar</button>
+        `
+
+        if (comment.is_mine) {
+            div.appendChild(myCommentDiv)
+            userHaveCommented = true
+        }
+
+
+        if (comment.is_mine) {
+            const editBtn = div.querySelector(".edit-btn");
+            const deleteBtn = div.querySelector(".delete-btn");
+
+            editBtn.addEventListener("click", () => {
+                openEditSection(comment); 
+            });
+
+            deleteBtn.addEventListener("click", () => {
+                if(confirm("Tens a certeza que queres apagar?")) {
+                    deleteComment(comment.id);
+                }
+            });
+        }
+
+        commentSection.appendChild(div);
+    });
+
+    recipeDetailsContainer.appendChild(commentSection);
+}
+
+function openEditSection(comment) {
+    console.log("A editar o comentário:", comment);
+    if (document.getElementById("userCommentCreator")) {document.getElementById("userCommentCreator").innerHTML = ""}
+    createUserCommentSection(recipeId)
+}
+
+async function deleteComment(id) {
+    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=deleteComment&id=${id}`)
+    const data = response.json()
+    console.log(data)
+
+    await refreshComments(document.getElementById("comments"), recipeId)
+}
+
+
+function createUserCommentSection(container, id = recipeId) {
+    
+    const starDiv = document.createElement("div")
+    const commentDiv = document.createElement("div")
+
+    let section = document.getElementById("userCommentCreator")
+
+    if (!section) {
+        section = document.createElement("section")
+        section.id = "userCommentCreator"
+    }
+
+    const button = document.createElement("button")
+
+    let p = document.createElement("p")
+    p.textContent = "My Comment"
+
+    const comment = Object.assign(document.createElement("input"), {
+        type: "text",
+        name: "comment",
+        id: "comment",
+        placeholder: "comment"
+    })
+
+    commentDiv.appendChild(p)
+    commentDiv.appendChild(comment)
+
+    starDiv.classList.add("rating")
 
     for (let i = 5; i >= 1; i--) {
         const input = Object.assign(document.createElement("input"), {
@@ -345,15 +439,53 @@ function renderComentarySection(recipeDetailsContainer, comentaries) {
             textContent: "★"
         })
 
-        div.appendChild(input)
-        div.appendChild(label)
+        starDiv.appendChild(input)
+        starDiv.appendChild(label)
     }
 
-    recipeDetailsContainer.appendChild(div)
+    button.textContent = "Send"
 
-    comentaries.forEach(comentary => {
+    button.addEventListener("click", async () => {
+        const selectedStar = starDiv.querySelector("input[name='star']:checked")
+        const comment = document.getElementById("comment")
 
+        const data = {
+            id: id,
+            comment: comment.value,
+            rating: selectedStar.value
+        }
+
+        if (selectedStar) {
+            const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=sendComment`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+
+            const responseJson = await response.json()
+            console.log(responseJson)
+            await refreshComments(document.getElementById("comments"), recipeId)
+        }
     })
-    
+
+    section.appendChild(commentDiv)
+    section.appendChild(starDiv)
+    section.appendChild(button)
+
+    recipeDetailsContainer.appendChild(section)
 }
+
+async function refreshComments(container, recipeId) {
+    const data = await getRecipeDetails(recipeId)
+
+    const oldSection = container
+    if (oldSection) oldSection.innerHTML = ""
+
+    if (document.getElementById("userCommentCreator") != null) {document.getElementById("userCommentCreator").innerHTML = ""}
+
+    createComentarySection(container, data.recipeInfo.comments, recipeId)
+}
+
 

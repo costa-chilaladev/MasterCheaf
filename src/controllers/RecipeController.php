@@ -19,6 +19,8 @@
         "getCategoriesByRecipeId", 
         "getMeasurements",
         "recipeInteraction",
+        "deleteComment",
+        "sendComment"
     ];
 
     $action = $_GET["action"] ?? '';
@@ -92,7 +94,7 @@
                     if (empty($id)) {
                         throw new Exception("ID da receita é obrigatório");
                     }
-                    $recipe = $recipeModel->getRecipeById($id);
+                    $recipe = $recipeModel->getRecipeById($id, $userId);
 
                     echo json_encode(["success" => true, "data" => $recipe]);
                     break;
@@ -143,10 +145,34 @@
                     $response = $recipeModel->toggleInteraction($recipeId, $option, $userId);
                     echo json_encode(["success" => true, "data" => $response]);
                     break;
+
+                case "deleteComment":
+                    $commentId = $_GET["id"];
+
+                    $response = $recipeModel->deleteComment($commentId, $userId);
+                    echo json_encode(["success" => true, "data" => $response]);
+                    break;
+
+                case "sendComment":
+                    $json = file_get_contents("php://input");
+
+                    $data = json_decode($json, true);
+
+                    $recipeId = $data["id"] ?? null;
+                    $comment = $data["comment"] ?? null;
+                    $rating = $data["rating"] ?? null;
+
+                    $response = $recipeModel->addComment($recipeId, $userId, $comment, $rating);
+
+                    echo json_encode([
+                        "comment" => $comment,
+                        "rating" => $rating
+                    ]);
+
+                    break;
             }
         } catch (Exception $e) {
-            // Tratamento de erro
-            http_response_code(400); // Bad Request
+            http_response_code(400); 
             echo json_encode(["success" => false, "message" => $e->getMessage()]);
         }
     } else {

@@ -132,7 +132,6 @@ function createRecipeCard(recipe) {
 
     destinationPageLink.append(title, description);
     recipeElement.appendChild(destinationPageLink);
-    recipeElement.appendChild(saveButton)
 
     return recipeElement;
 }

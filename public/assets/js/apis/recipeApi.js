@@ -48,17 +48,3 @@ export async function saveRecipe(id, option) {
     console.log(data)
 }
 
-export async function fetchCommentsByRecipeId(recipeId) {
-    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCommentsByRecipeId`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            recipeId: recipeId
-        })
-    })
-
-    const data = response.json()
-    return data
-}

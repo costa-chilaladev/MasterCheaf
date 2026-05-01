@@ -176,3 +176,4 @@ CREATE TABLE IF NOT EXISTS `comments` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 )
 
+alter table comments add column active BOOLEAN DEFAULT TRUE;
