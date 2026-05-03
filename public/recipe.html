@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe</title>
+    <title>Recipe Details - MasterChefAOA</title>
 
-    <!-- 1. Define a variável global para o JS saber onde está a API -->
-        <script>
-            window.API_BASE = "http://localhost/MasterCheaf/src";
-        </script>
+    <script>
+        window.API_BASE = "http://localhost/MasterCheaf/src";
+    </script>
 
-        <!-- 2. Chama o script gerenciado pelo Vite -->
-        <!-- (Certifica-te que o 'npm run dev' está a correr) -->
-        <script type="module" src="http://localhost:5173/public/assets/js/recipe.js"></script>
-        <link rel="stylesheet" href="assets/css/recipe.css">
+    <script type="module" src="http://localhost:5173/public/assets/js/ui/elements.js" defer></script>
+    <script type="module" src="http://localhost:5173/src/assets/js/recipe.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/css/recipePage.css">
 </head>
 <body>
+    <my-header></my-header>
     <main id="recipe-details">
         <section id="image-container"></section>
         <section id="categories"></section>
     </main>
+    <my-footer></my-footer>
 </body>
 </html>

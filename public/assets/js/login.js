@@ -10,7 +10,8 @@ document.getElementById("loginForm").addEventListener('submit', async (e) => {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = "index.html"
+            localStorage.setItem('user_logged', 'true')
+            window.location.href = "explore.html"
         }else {
             console.log(data)
         }

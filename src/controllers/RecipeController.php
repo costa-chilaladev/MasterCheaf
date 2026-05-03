@@ -64,29 +64,50 @@
                         throw new Exception("Nome da receita é obrigatório");
                     }
 
-                    $newRecipe = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories, $measuraments, $ingredientNumbers);
-                    $newRecipeId = $newRecipe;
+                    $connect->begin_transaction();
+                    $uploadedFiles = [];
 
-                    if (!empty($_FILES['recipe-images'])) {
-                        foreach ($_FILES['recipe-images']["tmp_name"] as $index => $tmpName) {
-                            if ($_FILES['recipe-images']["error"][$index] !== UPLOAD_ERR_OK) {
-                                continue;
+                    try {
+                        $newRecipeId = $recipeModel->createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories, $measuraments, $ingredientNumbers);
+
+                        if (!empty($_FILES['recipe-images']) && is_array($_FILES['recipe-images']["tmp_name"])) {
+                            foreach ($_FILES['recipe-images']["tmp_name"] as $index => $tmpName) {
+                                if ($_FILES['recipe-images']["error"][$index] !== UPLOAD_ERR_OK) {
+                                    continue;
+                                }
+
+                                $originalName = $_FILES['recipe-images']["name"][$index];
+                                $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+                                $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                                $safeName = preg_replace('/[^A-Za-z0-9_-]/', '_', trim($_POST['recipe-name'] ?? ''));
+                                $newFileName = $baseName . "_" . $safeName . "_" . $newRecipeId . "." . $ext;
+                                $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/uploads/recipes/';
+                                $destination = $uploadDir . $newFileName;
+
+                                if (!move_uploaded_file($tmpName, $destination)) {
+                                    throw new Exception("Erro ao mover imagem para o servidor");
+                                }
+
+                                $uploadedFiles[] = $destination;
+                                $recipeModel->addImageRecipe($newRecipeId, $newFileName);
                             }
-
-                            $originalName = $_FILES['recipe-images']["name"][$index];
-                            $baseName = pathinfo($originalName, PATHINFO_FILENAME);
-                            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-                            $safeName = trim($_POST['recipe-name'] ?? '');
-                            $newFileName = $baseName . "_" . $safeName . "_" . $newRecipeId . "." . $ext;
-                            
-                            $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/uploads/recipes/';
-                            move_uploaded_file($tmpName, $uploadDir . $newFileName);
-                            $recipeModel->addImageRecipe($newRecipeId, $newFileName);
                         }
-                    }
 
-                    
-                    echo json_encode(["success" => true, "data" => $newRecipeId]);
+                        $connect->commit();
+                        $connect->autocommit(true);
+                        echo json_encode(["success" => true, "data" => $newRecipeId]);
+                    } catch (Exception $e) {
+                        $connect->rollback();
+                        $connect->autocommit(true);
+
+                        foreach ($uploadedFiles as $filePath) {
+                            if (file_exists($filePath)) {
+                                @unlink($filePath);
+                            }
+                        }
+
+                        throw $e;
+                    }
                     break;
 
                 case "getAllIngredients":
@@ -174,6 +195,10 @@
                         "rating" => $rating
                     ]);
 
+                    break;
+
+                case "createIngredient":
+                    throw new Exception("Criação de ingredientes não é permitida");
                     break;
             }
         } catch (Exception $e) {

@@ -63,6 +63,50 @@ INSERT IGNORE INTO `ingredients` (`name`) VALUES
 ('Mustard'),
 ('Ketchup');
 
+INSERT IGNORE INTO `ingredients` (`name`) VALUES 
+('Flour'),
+('Turkey'),
+('Cocoa powder'),
+('Sugar'),
+('Banana'),
+('Egg'),
+('Milk'),
+('Chicken breast'),
+('Butter'),
+('Garlic'),
+('Salt'),
+('Pepper'),
+('Bread'),
+('Avocado'),
+('Lemon juice'),
+('Lentils'),
+('Carrot'),
+('Onion'),
+('Vegetable broth'),
+('Cheese'),
+('Spaghetti'),
+('Ground beef'),
+('Tomato sauce'),
+('Apple'),
+('Orange'),
+('Grapes'),
+('Eggs'),
+('Vegetables'),
+('Whole turkey'),
+('Herbs'),
+('Quinoa'),
+('Tomato'),
+('Cucumber'),
+('Olive oil'),
+('Rice'),
+('Soy sauce'),
+('Frozen fruits'),
+('Yogurt'),
+('Honey'),
+('Salmon'),
+('Lemon'),
+('Corn kernels');
+
 create table if not exists `recipe_ingredients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `recipe_id` int(11) NOT NULL,
@@ -151,6 +195,10 @@ VALUES
 ('to taste'),
 ('pinch');
 
+INSERT INTO `measurements` (`name`)
+VALUES
+('slice');
+
 alter table `recipe_ingredients` add column `number` int not null;
 alter table `recipe_ingredients` add column `measurements_id` int not null; 
 
@@ -177,3 +225,6 @@ CREATE TABLE IF NOT EXISTS `comments` (
 )
 
 alter table comments add column active BOOLEAN DEFAULT TRUE;
+
+select * from ingredients;
+delete from recipes where `id` > 0;

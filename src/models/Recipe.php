@@ -122,24 +122,37 @@ class Recipe {
     }
 
     public function createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories, $measuraments, $ingredientNumbers) {
+        if (!is_array($ingredients) || !is_array($measuraments) || !is_array($ingredientNumbers)) {
+            throw new Exception("Dados de ingredientes inválidos");
+        }
+
+        if (count($ingredients) !== count($measuraments) || count($ingredients) !== count($ingredientNumbers)) {
+            throw new Exception("Dados de ingredientes incompletos");
+        }
+
         $sql = $this->db->prepare("INSERT INTO recipes (name, description) VALUES (?, ?)");
         $sql->bind_param("ss", $name, $description);
         
         if (!$sql->execute()) {
             throw new Exception("Erro ao criar receita: " . $sql->error);
-            exit();
         }
         
         $id = $this->db->insert_id; 
-        $sql = $this->db->prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id, number, measurements_id) VALUES (?, ?, ?, ?)");
-        
-        array_map(function($ingredientId, $measurament, $ingredientNumber) use ($id, $sql) {
-            $sql->bind_param("iiii", $id, $ingredientId, $ingredientNumber, $measurament);
-            if (!$sql->execute()) {
-                throw new Exception("Erro ao associar ingrediente: " . $sql->error);
+        $ingredientSql = $this->db->prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id, number, measurements_id) VALUES (?, ?, ?, ?)");
+
+        foreach ($ingredients as $index => $ingredientId) {
+            $measurementId = $measuraments[$index] ?? null;
+            $ingredientNumber = $ingredientNumbers[$index] ?? null;
+
+            if (!is_numeric($ingredientId) || !is_numeric($measurementId) || !is_numeric($ingredientNumber)) {
+                throw new Exception("Ingrediente ou unidade inválida na linha " . ($index + 1));
             }
 
-        }, $ingredients, $measuraments, $ingredientNumbers);
+            $ingredientSql->bind_param("iiii", $id, $ingredientId, $ingredientNumber, $measurementId);
+            if (!$ingredientSql->execute()) {
+                throw new Exception("Erro ao associar ingrediente: " . $ingredientSql->error);
+            }
+        }
 
         $stmt = $this->db->prepare("
             INSERT INTO recipe_categories (recipe_id, category_id) 

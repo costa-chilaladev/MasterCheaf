@@ -1,5 +1,5 @@
-import { createCarroussel } from "#/assets/js/models/recipeUtils.js";
-import { getPossibleCategories, getPossibleIngredients, saveRecipe } from "$js/apis/recipeApi.js";
+import { createRecipeCardImage } from "#/assets/js/models/recipeUtils.js"
+import { getPossibleCategories, getPossibleIngredients, saveRecipe } from "$js/apis/recipeApi.js"
 import { renderCategoriesForm } from "$js/models/recipeUtils.js"
 
 const container = document.getElementById("recipes-grade");
@@ -13,23 +13,26 @@ if (window.API_BASE) Object.freeze(window.API_BASE);
 
 document.addEventListener("DOMContentLoaded", async () => {
     loadRecipes();
-    
+
     searchBtn.addEventListener("click", async () => {
-        const searchTerm = searchInput.value.trim(); 
+        const searchTerm = searchInput.value.trim();
         if (searchTerm) {
             await search(searchTerm);
         } else {
-            loadRecipes(); 
+            loadRecipes();
         }
     });
 
+    // Toggle filter section
     filterBtn.addEventListener("click", () => {
-        filterSection.classList.toggle("inactive")
-    })
+        filterSection.classList.toggle("inactive");
+    });
 
-    const categories = await getPossibleCategories()
-    renderCategoriesForm(categories, filterSection)
+    const categories = await getPossibleCategories();
+    renderCategoriesForm(categories, filterSection);
 
+    // Add filter change listeners after rendering categories
+    setupFilterListeners();
 });
 
 async function loadRecipes() {
@@ -50,6 +53,43 @@ async function loadRecipes() {
 
 async function search(searchTerm) {
     const recipes = await getSearchResults(searchTerm);
+    renderRecipes(recipes);
+}
+
+function setupFilterListeners() {
+    // Listen for changes in all filter inputs
+    const filterInputs = document.querySelectorAll('#filter-section input[type="checkbox"], #filter-section input[type="radio"]');
+
+    filterInputs.forEach(input => {
+        input.addEventListener('change', async () => {
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                await search(searchTerm);
+            } else {
+                await applyFilters();
+            }
+        });
+    });
+
+    // Add clear filters functionality
+    const clearBtn = document.getElementById('clear-filters-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+            // Clear all checkboxes and radio buttons
+            document.querySelectorAll('#filter-section input[type="checkbox"], #filter-section input[type="radio"]')
+                .forEach(input => input.checked = false);
+
+            // Clear search input
+            searchInput.value = '';
+
+            // Reload all recipes
+            await loadRecipes();
+        });
+    }
+}
+
+async function applyFilters() {
+    const recipes = await getSearchResults('');
     renderRecipes(recipes);
 }
 
@@ -107,10 +147,10 @@ async function getSearchResults(searchTerm) {
         method: 'POST',
         body: formData
     });
-    const data = response.json()
-    console.log(data)
+    const data = await response.json();
+    console.log(data);
 
-    
+    return data.data || [];
 }
 
 function createRecipeCard(recipe) {
@@ -122,7 +162,7 @@ function createRecipeCard(recipe) {
     recipeElement.className = "recipe-card";
 
     const images = Array.isArray(recipe.images) ? recipe.images : [];
-    createCarroussel(recipeElement, images, recipe.name);
+    createRecipeCardImage(recipeElement, images, recipe.name);
     
     const title = document.createElement('h2');
     title.textContent = recipe.name || "Receita sem título";

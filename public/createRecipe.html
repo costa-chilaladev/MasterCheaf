@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Explore Recipes</title>
+        <title>Create Recipe - MasterChefAOA</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!-- 1. Define a variável global para o JS saber onde está a API -->
@@ -12,22 +12,24 @@
 
         <!-- 2. Chama o script gerenciado pelo Vite -->
         <!-- (Certifica-te que o 'npm run dev' está a correr) -->
-        <script type="module" src="http://localhost:5173/public/assets/js/recipe.js"></script>
+        <script type="module" src="http://localhost:5173/src/assets/js/recipe.js"></script>
         <link rel="stylesheet" href="assets/css/recipe.css">
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script type="module" src="http://localhost:5173/public/assets/js/ui/elements.js" defer></script>
 
     </head>
 
     <body>
-        <header>
-            <a href="index.html">Home</a>
-        </header>
+        <my-header></my-header>
 
         <main>
+            <h1 style="text-align: center; color: var(--primary-color); margin-bottom: 30px; font-size: 2.5em;">Create New Recipe</h1>
             <form id="create-recipe-form" enctype="multipart/form-data">
                 <div>
-                    <label for="recipe-name">Recipe Name:</label>
+                    <label for="recipe-name">Recipe Name:</label> <br>
                     <input type="text" id="recipe-name" name="recipe-name" required>
                 </div>
+
                 <div>
                     <label for="recipe-description">Description:</label>
                     <textarea id="recipe-description" name="recipe-description" required></textarea>
@@ -41,14 +43,17 @@
                 </div>
 
                 <div>
-                    <input type="file" name="recipe-images[]" id="recipe-images" multiple accept="image/*">
+                    <input name="recipe-images[]" type="file" id="inputImage" accept="image/*" multiple/>
+                    <div id="cropperContainer">
+                        <img id="image" />
+                    </div>
+                    <button type="button" id="cropBtn">Crop</button>
+                    <div id="cropImageCounter"></div>
                 </div>
 
                 <div>
                     <div id="steps-container">
                         <h3>Steps</h3>
-                        <label for="step-1">1</label>
-                        <input type="text" id="step-1" name="recipe-preparation-steps[]">
                     </div>
                     <button id="addStepButton" type="button">Add Step</button>
                 </div>
@@ -59,9 +64,7 @@
             </form>
         </main>
 
-        <footer class="footer">
-            <p>© 2026 MasterChefAOA. All rights reserved.</p>
-        </footer>
+        <my-footer></my-footer>
 
     </body>
 </html>
