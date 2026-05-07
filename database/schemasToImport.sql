@@ -1,7 +1,3 @@
-create database if not EXISTS mastercheaf_aoa;
-
-use mastercheaf_aoa;
-
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
