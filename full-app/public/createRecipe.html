@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Create Recipe - MasterChefAOA</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script type="module" src="../src/assets/js/recipe.js"></script>
+        <link rel="stylesheet" href="assets/css/recipe.css">
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script type="module" src="../src/assets/js/ui/elements.js" defer></script>
+
+    </head>
+
+    <body>
+        <my-header></my-header>
+
+        <main>
+            <h1 style="text-align: center; color: var(--primary-color); margin-bottom: 30px; font-size: 2.5em;">Create New Recipe</h1>
+            <form id="create-recipe-form" enctype="multipart/form-data">
+                <div>
+                    <label for="recipe-name">Recipe Name:</label> <br>
+                    <input type="text" id="recipe-name" name="recipe-name" required>
+                </div>
+
+                <div>
+                    <label for="recipe-description">Description:</label>
+                    <textarea id="recipe-description" name="recipe-description" required></textarea>
+                </div>
+
+                <div id="categories-container"></div>
+    
+                <div>
+                    <div id="ingredients-container"></div>
+                    <button type="button" id="addIngredientButton">Add ingredient</button>
+                </div>
+
+                <div>
+                    <input name="recipe-images[]" type="file" id="inputImage" accept="image/*" multiple/>
+                    <div id="cropperContainer">
+                        <img id="image" />
+                    </div>
+                    <button type="button" id="cropBtn">Crop</button>
+                    <div id="cropImageCounter"></div>
+                </div>
+
+                <div>
+                    <div id="steps-container">
+                        <h3>Steps</h3>
+                    </div>
+                    <button id="addStepButton" type="button">Add Step</button>
+                </div>
+
+                <div id="error-container"></div>
+
+                <button type="submit">Create Recipe</button>
+            </form>
+        </main>
+
+        <my-footer></my-footer>
+
+    </body>
+</html>
