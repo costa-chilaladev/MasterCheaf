@@ -153,7 +153,7 @@ async function getSearchResults(searchTerm) {
 function createRecipeCard(recipe) {
     const destinationPageLink = document.createElement('a');
     const recipeId = encodeURIComponent(recipe.id);
-    destinationPageLink.href = `../public/recipe.html?id=${recipeId}`;
+    destinationPageLink.href = `../src/assets/pages/recipe.html?id=${recipeId}`;
 
     const recipeElement = document.createElement('article');
     recipeElement.className = "recipe-card";
