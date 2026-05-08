@@ -86,9 +86,33 @@ class myFooter extends HTMLElement {
         margin-top: 50px;
         border-top: 3px solid #FF7A00;
         font-family: Roboto, sans-serif;
+        line-height: 1.7;
       ">
-        <p style="margin: 0; font-size: 0.95em; font-weight: 500;">
-          © 2026 MasterChefAOA. All rights reserved.
+        <p style="margin: 0; font-size: 1em; font-weight: 600;">
+          © 2026 MasterChefAOA
+        </p>
+
+        <p style="margin: 10px 0 0; font-size: 0.95em;">
+          This project is open-source and licensed under the
+          <a 
+            href="https://opensource.org/licenses/MIT"
+            target="_blank"
+            style="color: #FF7A00; text-decoration: none; font-weight: 600;"
+          >
+            MIT License
+          </a>.
+        </p>
+
+        <p style="margin: 8px 0 0; font-size: 0.95em;">
+          This website is only a demo version.
+          View the real project here:
+          <a 
+            href="https://github.com/yourusername/yourproject"
+            target="_blank"
+            style="color: #FF7A00; text-decoration: none; font-weight: 600;"
+          >
+            GitHub Repository
+          </a>
         </p>
       </footer>
     `;
@@ -96,3 +120,4 @@ class myFooter extends HTMLElement {
 }
 
 customElements.define('my-footer', myFooter);
+

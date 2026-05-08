@@ -70,6 +70,54 @@ export const recipes = [
   }
 ];
 
+export const ingredients = [
+  { id: 1, name: "All-purpose flour" },
+  { id: 2, name: "Sugar" },
+  { id: 3, name: "Cocoa powder" },
+  { id: 4, name: "Eggs" },
+  { id: 5, name: "Milk" },
+  { id: 6, name: "Vegetable oil" },
+  { id: 7, name: "Baking powder" },
+  { id: 8, name: "Salt" },
+  { id: 9, name: "Vanilla extract" },
+  { id: 10, name: "Butter" },
+  { id: 11, name: "Tomatoes" },
+  { id: 12, name: "Avocado" },
+  { id: 13, name: "Cheese" },
+  { id: 14, name: "Garlic" },
+  { id: 15, name: "Rice" },
+  { id: 16, name: "Chicken" },
+  { id: 17, name: "Olive oil" },
+  { id: 18, name: "Onion" },
+  { id: 19, name: "Black pepper" },
+  { id: 20, name: "Parsley" }
+];
+
+export const categories = [
+  { id: 1, type: "category", name: "Breakfast" },
+  { id: 2, type: "category", name: "Lunch" },
+  { id: 3, type: "category", name: "Dinner" },
+  { id: 4, type: "category", name: "Dessert" },
+  { id: 5, type: "category", name: "Snack" },
+  { id: 6, type: "category", name: "Vegetarian" },
+  { id: 7, type: "category", name: "Vegan" },
+  { id: 8, type: "category", name: "Comfort Food" },
+  { id: 9, type: "category", name: "Healthy" },
+  { id: 10, type: "category", name: "Party" }
+];
+
+export const measurements = [
+  { id: 1, name: "gram" },
+  { id: 2, name: "kilogram" },
+  { id: 3, name: "milliliter (ml)" },
+  { id: 4, name: "liter (l)" },
+  { id: 5, name: "cup" },
+  { id: 6, name: "tablespoon" },
+  { id: 7, name: "teaspoon" },
+  { id: 8, name: "unit" },
+  { id: 9, name: "pinch" },
+  { id: 10, name: "slice" }
+];
 
 
 export const recipeDetails = [

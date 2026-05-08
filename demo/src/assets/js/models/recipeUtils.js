@@ -146,36 +146,40 @@ export function renderCategoriesForm(categories, container) {
     const containers = {};
     const singleChoiceTypes = ["meal", "type"];
 
-    categories.forEach(category => {
-        if (!containers[category.type]) {
+    categories.forEach((category, index) => {
+        const categoryData = typeof category === 'string'
+            ? { id: index + 1, type: 'category', name: category }
+            : { id: category.id ?? index + 1, type: category.type ?? 'category', name: category.name ?? category.label ?? '' };
+
+        if (!containers[categoryData.type]) {
             const div = document.createElement("div");
             div.className = "filter-group";
-            div.id = category.type;
+            div.id = categoryData.type;
 
             const title = document.createElement("h3");
-            title.textContent = category.type.charAt(0).toUpperCase() + category.type.slice(1);
+            title.textContent = categoryData.type.charAt(0).toUpperCase() + categoryData.type.slice(1);
 
             div.appendChild(title);
             container.appendChild(div);
 
-            containers[category.type] = div;
+            containers[categoryData.type] = div;
         }
 
         const label = document.createElement("label");
         label.className = "filter-option";
 
         const input = document.createElement("input");
-        input.type = (singleChoiceTypes.includes(category.type)) ? "radio" : "checkbox";
-        input.name = (singleChoiceTypes.includes(category.type)) ? category.type : "categories[]";
-        input.value = category.id;
-        input.id = `filter-${category.type}-${category.id}`;
+        input.type = (singleChoiceTypes.includes(categoryData.type)) ? "radio" : "checkbox";
+        input.name = (singleChoiceTypes.includes(categoryData.type)) ? categoryData.type : "categories[]";
+        input.value = categoryData.id;
+        input.id = `filter-${categoryData.type}-${categoryData.id}`;
 
         const span = document.createElement("span");
-        span.textContent = category.name;
+        span.textContent = categoryData.name;
 
         label.appendChild(input);
         label.appendChild(span);
-        containers[category.type].appendChild(label);
+        containers[categoryData.type].appendChild(label);
     });
 
     const controlsDiv = document.createElement("div");

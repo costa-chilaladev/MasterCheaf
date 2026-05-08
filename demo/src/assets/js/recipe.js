@@ -204,29 +204,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            const response = await fetch(`../src/controllers/RecipeController.php?action=createRecipe`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const text = await response.text();
-            let data;
-
-            try {
-                data = JSON.parse(text);
-            } catch (jsonError) {
-                console.error('Invalid JSON response from createRecipe:', text);
-                renderError(errorContainer, 'Erro do servidor ao criar receita');
-                return;
+            const recipeData = {
+                name: recipeName,
+                description: recipeDescr,
+                ingredients: ingredients.map((value, index) => ({
+                    id: value,
+                    quantity: ingredientNumbers[index] || "",
+                    measurementId: measurements[index] || ""
+                })),
+                steps: Array.from(document.querySelectorAll("input[name='recipe-preparation-steps[]']")).map(input => input.value),
+                images: croppedImages.length
             }
 
-            if (data.success) {
-                console.log('Recipe created successfully!');
-                e.target.reset();
-            } else {
-                console.log('Error creating recipe: ' + data.message);
-                renderError(errorContainer, data.message || 'Erro ao criar receita');
-            }
+            console.log("Demo recipe saved locally:", recipeData);
+            renderError(errorContainer, "Receita criada com sucesso! (demo)");
+            document.getElementById('create-recipe-form').reset();
+            croppedImages = [];
+            updateImageCount();
+            document.getElementById('cropBtn').style.display = 'none';
+            document.getElementById('noImagePlaceholder').style.display = 'block';
         });
 
         document.getElementById('addStepButton').addEventListener('click', () => {
@@ -371,7 +367,6 @@ function addStep() {
     const div = document.createElement("div")
     
     const stepCount = container.querySelectorAll('input').length + 1;
-
 
     const label = document.createElement('label');
     label.setAttribute('for', `step-${stepCount}`);
