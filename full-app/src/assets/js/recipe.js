@@ -1,7 +1,5 @@
-import Cropper from "cropperjs";
-import "cropperjs/dist/cropper.css";
-import TomSelect from "tom-select";
-import "tom-select/dist/css/tom-select.css";
+import Cropper from "https://cdn.jsdelivr.net/npm/cropperjs/+esm";
+import TomSelect from "https://cdn.jsdelivr.net/npm/tom-select/+esm";
 import { createCarroussel } from "./models/recipeUtils.js";
 import { getPossibleCategories, getPossibleIngredients } from "./apis/recipeApi.js";
 import { renderCategoriesForm } from "./models/recipeUtils.js";
@@ -92,7 +90,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderIngredients(ingredients, contentGrid)
         renderPreparationSteps(preparationSteps, contentGrid)
 
-        createComentarySection(recipeDetailsContainer, comments, id)
+        createCommentarySection(recipeDetailsContainer, comments, id)
 
     }
     else {
@@ -187,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=createRecipe`, {
+            const response = await fetch(`../src/controllers/RecipeController.php?action=createRecipe`, {
                 method: 'POST',
                 body: formData
             });
@@ -212,11 +210,11 @@ async function getRecipeDetails(id) {
     try {
         const result = {}
 
-        const recipeResponse = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getRecipeById&id=${id}`);
+        const recipeResponse = await fetch(`../src/controllers/RecipeController.php?action=getRecipeById&id=${id}`);
         const recipeData = await recipeResponse.json();
         const recipeInfo = recipeData.data
 
-        const categoriesResponse = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=getCategoriesByRecipeId&id=${id}`)
+        const categoriesResponse = await fetch(`../src/controllers/RecipeController.php?action=getCategoriesByRecipeId&id=${id}`)
         const categoriesData = await categoriesResponse.json()
         const categoriesInfo = categoriesData.data
         
@@ -472,7 +470,7 @@ async function constructSaveAndFavoriteButton(id, interactionContainer, states) 
     })
 }
 
-function createComentarySection(recipeDetailsContainer, comments, id) {
+function createCommentarySection(recipeDetailsContainer, comments, id) {
 
     const commentSection = document.createElement("section");
     commentSection.classList.add("comments-section");
@@ -522,6 +520,18 @@ function createComentarySection(recipeDetailsContainer, comments, id) {
                 <button class="edit-btn">Edit</button>
                 <button class="delete-btn">Delete</button>
             `;
+            
+            const editBtn = myCommentDiv.querySelector(".edit-btn");
+            const deleteBtn = myCommentDiv.querySelector(".delete-btn");
+            
+            editBtn.addEventListener("click", () => {
+                openEditSection(comment);
+            });
+            
+            deleteBtn.addEventListener("click", () => {
+                deleteComment(comment.id);
+            });
+            
             div.appendChild(myCommentDiv);
             userHaveCommented = true;
         }
@@ -533,17 +543,19 @@ function createComentarySection(recipeDetailsContainer, comments, id) {
 }
 
 function openEditSection(comment) {
-    console.log("A editar o comentário:", comment);
-    if (document.getElementById("userCommentCreator")) {document.getElementById("userCommentCreator").innerHTML = ""}
-    createUserCommentSection(recipeId)
+    console.log("Editing comment:", comment);
+    if (document.getElementById("userCommentCreator")) {
+        document.getElementById("userCommentCreator").innerHTML = "";
+    }
+    createUserCommentSection(document.getElementById("recipe-details"), recipeId);
 }
 
 async function deleteComment(id) {
-    const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=deleteComment&id=${id}`)
-    const data = response.json()
-    console.log(data)
+    const response = await fetch(`../src/controllers/RecipeController.php?action=deleteComment&id=${id}`);
+    const data = await response.json();
+    console.log(data);
 
-    await refreshComments(document.getElementById("comments"), recipeId)
+    await refreshComments(document.getElementById("comments"), recipeId);
 }
 
 
@@ -625,7 +637,7 @@ function createUserCommentSection(container, id = recipeId) {
             rating: selectedStar.value
         };
 
-        const response = await fetch(`${window.API_BASE}/controllers/RecipeController.php?action=sendComment`, {
+        const response = await fetch(`../src/controllers/RecipeController.php?action=sendComment&id=${id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -645,12 +657,14 @@ function createUserCommentSection(container, id = recipeId) {
 async function refreshComments(container, recipeId) {
     const data = await getRecipeDetails(recipeId)
 
-    const oldSection = container
-    if (oldSection) oldSection.innerHTML = ""
+    const oldSection = container;
+    if (oldSection) oldSection.innerHTML = "";
 
-    if (document.getElementById("userCommentCreator") != null) {document.getElementById("userCommentCreator").innerHTML = ""}
+    if (document.getElementById("userCommentCreator") != null) {
+        document.getElementById("userCommentCreator").innerHTML = "";
+    }
 
-    createComentarySection(container, data.recipeInfo.comments, recipeId)
+    createCommentarySection(container, data.recipeInfo.comments, recipeId);
 }
 
 function initializeCropperUI() {
@@ -666,63 +680,148 @@ function initializeCropperUI() {
         currentIndex = 0;
         croppedImages = [];
 
+        const placeholder = document.getElementById('noImagePlaceholder');
+        const cropBtn = document.getElementById('cropBtn');
+
         if (files.length > 0) {
+            placeholder.style.display = 'none';
+            cropBtn.style.display = 'inline-block';
             loadImage(files[currentIndex]);
+        } else {
+            placeholder.style.display = 'block';
+            cropBtn.style.display = 'none';
+            updateImageCount();
         }
     });
 
-    cropBtn.addEventListener("click", async () => {
-        if (!cropper) return;
+    cropBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
 
-        const canvas = cropper.getCroppedCanvas({
-            width: 1280,
-            height: 720,
-        });
+        if (!cropper) {
+            alert("Selecione uma imagem primeiro");
+            return;
+        }
 
-        const blob = await new Promise(resolve =>
-            canvas.toBlob(resolve, "image/webp", 0.85)
-        );
+        const originalText = cropBtn.textContent;
+        cropBtn.textContent = "✂️ Cortando...";
+        cropBtn.disabled = true;
 
-        croppedImages.push(blob);
-        currentIndex++;
+        try {
+            const canvas = cropper.getCroppedCanvas({
+                width: 1280,
+                height: 720,
+                fillColor: '#fff',
+            });
 
-        if (currentIndex < files.length) {
-            loadImage(files[currentIndex]);
-        } else {
+            if (!canvas) {
+                throw new Error("Falha ao criar canvas");
+            }
+
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob(resolve, "image/webp", 0.85);
+                setTimeout(() => reject(new Error("Timeout")), 5000);
+            });
+
+            croppedImages.push(blob);
             updateImageCount();
+
+            // Feedback visual de sucesso
+            cropBtn.textContent = "✅ Cortada!";
+            cropBtn.style.backgroundColor = "#28a745";
+
+            setTimeout(() => {
+                cropBtn.textContent = originalText;
+                cropBtn.style.backgroundColor = "";
+                cropBtn.disabled = false;
+            }, 1500);
+
+            // Próxima imagem ou finalizar
+            if (currentIndex + 1 < files.length) {
+                currentIndex++;
+                setTimeout(() => loadImage(files[currentIndex]), 500);
+            } else {
+                setTimeout(() => {
+                    alert(`🎉 Todas as ${croppedImages.length} imagens foram cortadas com sucesso!`);
+                }, 1500);
+            }
+
+        } catch (error) {
+            console.error("Erro ao cortar imagem:", error);
+            alert("Erro ao cortar imagem. Tente novamente.");
+            cropBtn.textContent = originalText;
+            cropBtn.disabled = false;
         }
     });
 }
 
 function loadImage(file) {
-    if (!imageElement) return;
-    
+    if (!imageElement) {
+        console.error("Elemento de imagem não encontrado");
+        return;
+    }
+
+    // Mostrar loading
+    const container = document.getElementById('cropperContainer');
+    container.style.opacity = '0.7';
+
     const url = URL.createObjectURL(file);
     imageElement.src = url;
 
     imageElement.onload = () => {
-        if (cropper) cropper.destroy();
+        container.style.opacity = '1';
+        imageElement.style.display = 'block';
 
-        cropper = new Cropper(imageElement, {
-            aspectRatio: 16 / 9,
-            viewMode: 1,
-            autoCropArea: 1,
-            responsive: true,
-            restore: true,
-            guides: true,
-            center: true,
-            highlight: true,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: true,
-        });
+        if (cropper) {
+            cropper.destroy();
+        }
+
+        try {
+            cropper = new Cropper(imageElement, {
+                aspectRatio: 16 / 9,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                responsive: true,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: true,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                background: false,
+            });
+
+            updateImageCount();
+        } catch (error) {
+            console.error("Erro ao inicializar cropper:", error);
+            alert("Erro ao inicializar editor de imagem");
+        }
+    };
+
+    imageElement.onerror = () => {
+        container.style.opacity = '1';
+        alert("Erro ao carregar imagem. Tente outra imagem.");
     };
 }
 
 function updateImageCount() {
     const counter = document.getElementById("cropImageCounter");
     if (counter) {
-        counter.textContent = `${croppedImages.length} imagem(ns) cortada(s)`;
+        if (files.length > 0) {
+            const progress = croppedImages.length;
+            const total = files.length;
+            counter.innerHTML = `
+                <span style="color: var(--primary-color); font-weight: bold;">
+                    📷 ${currentIndex + 1}/${total}
+                </span>
+                <span style="color: #28a745; margin-left: 10px;">
+                    ✅ ${progress} cortada(s)
+                </span>
+            `;
+        } else {
+            counter.textContent = `${croppedImages.length} imagem(ns) cortada(s)`;
+        }
+    }
+}
     }
 }
 

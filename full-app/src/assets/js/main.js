@@ -8,8 +8,6 @@ const searchBtn = document.getElementById("search-btn");
 const filterBtn = document.getElementById("filter-btn");
 const filterSection = document.getElementById("filter-section");
 
-if (window.API_BASE) Object.freeze(window.API_BASE);
-
 document.addEventListener("DOMContentLoaded", async () => {
     loadRecipes();
 
@@ -153,7 +151,7 @@ async function getSearchResults(searchTerm) {
 function createRecipeCard(recipe) {
     const destinationPageLink = document.createElement('a');
     const recipeId = encodeURIComponent(recipe.id);
-    destinationPageLink.href = `../src/assets/pages/recipe.html?id=${recipeId}`;
+    destinationPageLink.href = `recipe.html?id=${recipeId}`;
 
     const recipeElement = document.createElement('article');
     recipeElement.className = "recipe-card";

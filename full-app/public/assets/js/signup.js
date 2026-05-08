@@ -1,4 +1,4 @@
-import { validateEmail, validatePassword } from '$js/utils/auth.js';
+import { validateEmail, validatePassword } from '../../src/assets/js/utils/auth.js';
 
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();

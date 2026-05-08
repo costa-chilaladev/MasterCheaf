@@ -81,7 +81,7 @@
                                 $ext = pathinfo($originalName, PATHINFO_EXTENSION);
                                 $safeName = preg_replace('/[^A-Za-z0-9_-]/', '_', trim($_POST['recipe-name'] ?? ''));
                                 $newFileName = $baseName . "_" . $safeName . "_" . $newRecipeId . "." . $ext;
-                                $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/MasterCheaf/uploads/recipes/';
+                                $uploadDir = __DIR__ . '../../uploads/recipes/';
                                 $destination = $uploadDir . $newFileName;
 
                                 if (!move_uploaded_file($tmpName, $destination)) {
