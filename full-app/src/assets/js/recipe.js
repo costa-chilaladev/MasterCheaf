@@ -1,5 +1,5 @@
-import Cropper from "https://cdn.jsdelivr.net/npm/cropperjs/+esm";
-import TomSelect from "https://cdn.jsdelivr.net/npm/tom-select/+esm";
+import Cropper from "https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.esm.js";
+import TomSelect from "https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/esm/tom-select.complete.js";
 import { createCarroussel } from "./models/recipeUtils.js";
 import { getPossibleCategories, getPossibleIngredients } from "./apis/recipeApi.js";
 import { renderCategoriesForm } from "./models/recipeUtils.js";
@@ -15,6 +15,18 @@ let currentIndex = 0;
 let cropper = null;
 let imageElement = null;
 let recipeId = null;
+
+function getCropperInstance() {
+    if (!cropper) return null;
+    if (typeof cropper.getCroppedCanvas === 'function') {
+        return cropper;
+    }
+    if (cropper.cropper && typeof cropper.cropper.getCroppedCanvas === 'function') {
+        return cropper.cropper;
+    }
+    return null;
+}
+
 let recipeDetailsContainer = document.getElementById("recipe-details");
 let recipeName = "";
 let recipeDescr = "";
@@ -190,13 +202,23 @@ document.addEventListener("DOMContentLoaded", async () => {
                 body: formData
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            let data;
+
+            try {
+                data = JSON.parse(text);
+            } catch (jsonError) {
+                console.error('Invalid JSON response from createRecipe:', text);
+                renderError(errorContainer, 'Erro do servidor ao criar receita');
+                return;
+            }
 
             if (data.success) {
                 console.log('Recipe created successfully!');
                 e.target.reset();
             } else {
                 console.log('Error creating recipe: ' + data.message);
+                renderError(errorContainer, data.message || 'Erro ao criar receita');
             }
         });
 
@@ -707,7 +729,12 @@ function initializeCropperUI() {
         cropBtn.disabled = true;
 
         try {
-            const canvas = cropper.getCroppedCanvas({
+            const activeCropper = getCropperInstance();
+            if (!activeCropper) {
+                throw new Error("Cropper inválido");
+            }
+
+            const canvas = activeCropper.getCroppedCanvas({
                 width: 1280,
                 height: 720,
                 fillColor: '#fff',
@@ -820,8 +847,6 @@ function updateImageCount() {
         } else {
             counter.textContent = `${croppedImages.length} imagem(ns) cortada(s)`;
         }
-    }
-}
     }
 }
 

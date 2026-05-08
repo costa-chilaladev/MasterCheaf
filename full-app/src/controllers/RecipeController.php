@@ -4,7 +4,9 @@
     }
 
     if (!isset($_SESSION['id'])) {
-        header("Location: login.html");
+        http_response_code(401);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["success" => false, "message" => "Usuário não autenticado"]);
         exit();
     }
     
@@ -31,6 +33,7 @@
     $action = $_GET["action"] ?? '';
 
     if (in_array($action, $actions)) {
+        header('Content-Type: application/json; charset=utf-8');
         try {
             // 2. Instancia o modelo passando a variável $connect (que vem do database.php)
             $recipeModel = new Recipe($connect);
@@ -81,7 +84,7 @@
                                 $ext = pathinfo($originalName, PATHINFO_EXTENSION);
                                 $safeName = preg_replace('/[^A-Za-z0-9_-]/', '_', trim($_POST['recipe-name'] ?? ''));
                                 $newFileName = $baseName . "_" . $safeName . "_" . $newRecipeId . "." . $ext;
-                                $uploadDir = __DIR__ . '../../uploads/recipes/';
+                                $uploadDir = __DIR__ . '/../../uploads/recipes/';
                                 $destination = $uploadDir . $newFileName;
 
                                 if (!move_uploaded_file($tmpName, $destination)) {
