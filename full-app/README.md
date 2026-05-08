@@ -73,8 +73,4 @@ http://localhost/PratoFacil/full-app
 
 Demo website link coming soon...
 
-![Home Page](./images/pratoFacilimg1.png)
-![Home Page](./images/pratoFacilimg2.png)
-![Home Page](./images/pratoFacilimg3.png)
-
 This project is licensed under the MIT License.

@@ -22,6 +22,10 @@ The platform allows users to:
 
 This project was fully developed by **Constantino Chilala** over approximately **3 months** as a first major programming project.
 
+![Home Page](./images/pratoFacilimg1.png)
+![Home Page](./images/pratoFacilimg2.png)
+![Home Page](./images/pratoFacilimg3.png)
+
 ---
 
 ## 🛠️ Technologies Used
