@@ -7,9 +7,9 @@
     // Criamos a conexão apenas uma vez
     $connect = new mysqli($host, $user, $pass, $dbname);
 
-    // Verifica se houve erro
+    // Check for a connection error
     if ($connect->connect_error) {
-        die("Falha na conexão: " . $connect->connect_error);
+        die("Connection failed: " . $connect->connect_error);
     }
 
     // Define o charset para evitar problemas com acentos

@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const input = document.createElement("select")
             input.setAttribute("name", "recipe-ingredients[]")
-            input.setAttribute("placeholder", "Selecione um ingrediente...")
+            input.setAttribute("placeholder", "Select an ingredient...")
 
             const inputNumber = document.createElement("input")
             inputNumber.setAttribute("name", "ingredient-number[]")
@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const measurements = formData.getAll("measuraments[]");
 
             if (!validateRecipeName(recipeName)) {
-                renderError(errorContainer, `Error: Recipe name inválido`);
+                renderError(errorContainer, `Error: Invalid recipe name`);
                 return;
             }
 
@@ -188,19 +188,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const invalidIngredients = ingredients.some(ingredient => !ingredient || isNaN(ingredient));
             if (invalidIngredients) {
-                renderError(errorContainer, "Erro: Todos os ingredientes devem ser selecionados da lista");
+                renderError(errorContainer, "Error: All ingredients must be selected from the list");
                 return;
             }
 
             const invalidNumbers = ingredientNumbers.some(num => !num || isNaN(num) || num <= 0);
             if (invalidNumbers) {
-                renderError(errorContainer, "Erro: Todas as quantidades devem ser números positivos");
+                renderError(errorContainer, "Error: All quantities must be positive numbers");
                 return;
             }
 
             const invalidMeasurements = measurements.some(measurement => !measurement || isNaN(measurement));
             if (invalidMeasurements) {
-                renderError(errorContainer, "Erro: Todas as unidades devem ser selecionadas");
+                renderError(errorContainer, "Error: All units must be selected");
                 return;
             }
 
@@ -217,7 +217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             console.log("Demo recipe saved locally:", recipeData);
-            renderError(errorContainer, "Receita criada com sucesso! (demo)");
+            renderError(errorContainer, "Recipe created successfully! (demo)");
             document.getElementById('create-recipe-form').reset();
             croppedImages = [];
             updateImageCount();
@@ -328,7 +328,7 @@ function initializeTomSelect(selectElement, ingredients) {
     try {
         const tomSelect = new TomSelect(selectElement, {
             options: options,
-            placeholder: "Selecione um ingrediente...",
+            placeholder: "Select an ingredient...",
             create: false, 
             maxOptions: null,
             maxItems: 1,
@@ -425,7 +425,7 @@ async function cropToRatio(file, width, height, outputWidth, outputHeight, quali
             }, "image/webp", quality);
         };
 
-        img.onerror = () => reject(new Error("Falha ao carregar imagem"));
+        img.onerror = () => reject(new Error("Failed to load image"));
         img.src = URL.createObjectURL(file);
     });
 }
@@ -484,7 +484,7 @@ function createCommentarySection(recipeDetailsContainer, comments, id) {
     if (comments.length < 1) {
         const noCommentsDiv = document.createElement("div");
         noCommentsDiv.classList.add("no-results");
-        noCommentsDiv.innerHTML = "🍳<br>No comments yet. Be the first to share your thoughts!";
+        noCommentsDiv.innerHTML = "<br>No comments yet. Be the first to share your thoughts!";
         commentSection.appendChild(noCommentsDiv);
         recipeDetailsContainer.appendChild(commentSection);
         createUserCommentSection(recipeDetailsContainer, id);
@@ -501,7 +501,7 @@ function createCommentarySection(recipeDetailsContainer, comments, id) {
 
         const ratingSpan = document.createElement("div");
         ratingSpan.classList.add("comment-rating");
-        ratingSpan.textContent = `Rating: ${'★'.repeat(comment.rate)}${'☆'.repeat(5-comment.rate)} (${comment.rate}/5)`;
+        ratingSpan.textContent = `Rating: ${comment.rate}/5`;
 
         const textP = document.createElement("div");
         textP.classList.add("comment-text");
@@ -670,18 +670,18 @@ function initializeCropperUI() {
         e.preventDefault();
 
         if (!cropper) {
-            alert("Selecione uma imagem primeiro");
+            alert("Please select an image first");
             return;
         }
 
         const originalText = cropBtn.textContent;
-        cropBtn.textContent = "✂️ Cortando...";
+        cropBtn.textContent = "Cortando...";
         cropBtn.disabled = true;
 
         try {
             const activeCropper = getCropperInstance();
             if (!activeCropper) {
-                throw new Error("Cropper inválido");
+                throw new Error("Invalid cropper");
             }
 
             const canvas = activeCropper.getCroppedCanvas({
@@ -691,7 +691,7 @@ function initializeCropperUI() {
             });
 
             if (!canvas) {
-                throw new Error("Falha ao criar canvas");
+                throw new Error("Failed to create canvas");
             }
 
             const blob = await new Promise((resolve, reject) => {
@@ -702,7 +702,7 @@ function initializeCropperUI() {
             croppedImages.push(blob);
             updateImageCount();
 
-            cropBtn.textContent = "✅ Cortada!";
+            cropBtn.textContent = "rtada!";
             cropBtn.style.backgroundColor = "#28a745";
 
             setTimeout(() => {
@@ -716,13 +716,13 @@ function initializeCropperUI() {
                 setTimeout(() => loadImage(files[currentIndex]), 500);
             } else {
                 setTimeout(() => {
-                    alert(`🎉 Todas as ${croppedImages.length} imagens foram cortadas com sucesso!`);
+                    alert(`🎉 All ${croppedImages.length} images were cropped successfully!`);
                 }, 1500);
             }
 
         } catch (error) {
-            console.error("Erro ao cortar imagem:", error);
-            alert("Erro ao cortar imagem. Tente novamente.");
+            console.error("Error cropping image:", error);
+            alert("Error cropping image. Please try again.");
             cropBtn.textContent = originalText;
             cropBtn.disabled = false;
         }
@@ -731,7 +731,7 @@ function initializeCropperUI() {
 
 function loadImage(file) {
     if (!imageElement) {
-        console.error("Elemento de imagem não encontrado");
+        console.error("Image element not found");
         return;
     }
 
@@ -766,14 +766,14 @@ function loadImage(file) {
 
             updateImageCount();
         } catch (error) {
-            console.error("Erro ao inicializar cropper:", error);
-            alert("Erro ao inicializar editor de imagem");
+            console.error("Error initializing cropper:", error);
+            alert("Error initializing image editor");
         }
     };
 
     imageElement.onerror = () => {
         container.style.opacity = '1';
-        alert("Erro ao carregar imagem. Tente outra imagem.");
+        alert("Error loading image. Please try another one.");
     };
 }
 
@@ -785,10 +785,10 @@ function updateImageCount() {
             const total = files.length;
             counter.innerHTML = `
                 <span style="color: var(--primary-color); font-weight: bold;">
-                    📷 ${currentIndex + 1}/${total}
+                    Image ${currentIndex + 1}/${total}
                 </span>
                 <span style="color: #28a745; margin-left: 10px;">
-                    ✅ ${progress} cortada(s)
+                    ${progress} cortada(s)
                 </span>
             `;
         } else {

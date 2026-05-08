@@ -37,8 +37,8 @@ async function loadRecipes() {
 
         renderRecipes(recipes || []);
     } catch (error) {
-        console.error("Erro interno:", error);
-        container.innerHTML = `<p class="error">Ocorreu um erro ao carregar o conteúdo. Tente mais tarde.</p>`;
+        console.error("Internal error:", error);
+        container.innerHTML = `<p class="error">An error occurred while loading content. Please try again later.</p>`;
     }
 }
 
@@ -47,7 +47,7 @@ function renderRecipes(recipes) {
     
     if (!recipes || recipes.length === 0) {
         const noResults = document.createElement("p");
-        noResults.textContent = "Nenhuma receita encontrada.";
+        noResults.textContent = "No recipes found.";
         container.appendChild(noResults);
         return;
     }
@@ -71,10 +71,10 @@ function createRecipeCard(recipe) {
     createRecipeCardImage(recipeElement, images, recipe.name);
     
     const title = document.createElement('h2');
-    title.textContent = recipe.name || "Receita sem título";
+    title.textContent = recipe.name || "Untitled recipe";
 
     const description = document.createElement('p');
-    description.textContent = recipe.description || "Sem descrição disponível.";
+    description.textContent = recipe.description || "No description available.";
 
     destinationPageLink.append(title, description);
     recipeElement.appendChild(destinationPageLink);

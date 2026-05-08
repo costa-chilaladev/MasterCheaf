@@ -107,7 +107,7 @@ class myFooter extends HTMLElement {
           This website is only a demo version.
           View the real project here:
           <a 
-            href="https://github.com/yourusername/yourproject"
+            href="https://github.com/costa-chilaladev/PratoFacil.git"
             target="_blank"
             style="color: #FF7A00; text-decoration: none; font-weight: 600;"
           >

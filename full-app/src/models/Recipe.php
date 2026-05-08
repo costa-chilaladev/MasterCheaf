@@ -123,18 +123,18 @@ class Recipe {
 
     public function createRecipe($name, $description, $ingredients, $preparationSteps, $allCategories, $measuraments, $ingredientNumbers) {
         if (!is_array($ingredients) || !is_array($measuraments) || !is_array($ingredientNumbers)) {
-            throw new Exception("Dados de ingredientes inválidos");
+            throw new Exception("Invalid ingredient data");
         }
 
         if (count($ingredients) !== count($measuraments) || count($ingredients) !== count($ingredientNumbers)) {
-            throw new Exception("Dados de ingredientes incompletos");
+            throw new Exception("Incomplete ingredient data");
         }
 
         $sql = $this->db->prepare("INSERT INTO recipes (name, description) VALUES (?, ?)");
         $sql->bind_param("ss", $name, $description);
         
         if (!$sql->execute()) {
-            throw new Exception("Erro ao criar receita: " . $sql->error);
+            throw new Exception("Error creating recipe: " . $sql->error);
         }
         
         $id = $this->db->insert_id; 
@@ -145,12 +145,12 @@ class Recipe {
             $ingredientNumber = $ingredientNumbers[$index] ?? null;
 
             if (!is_numeric($ingredientId) || !is_numeric($measurementId) || !is_numeric($ingredientNumber)) {
-                throw new Exception("Ingrediente ou unidade inválida na linha " . ($index + 1));
+                throw new Exception("Invalid ingredient or unit on line " . ($index + 1));
             }
 
             $ingredientSql->bind_param("iiii", $id, $ingredientId, $ingredientNumber, $measurementId);
             if (!$ingredientSql->execute()) {
-                throw new Exception("Erro ao associar ingrediente: " . $ingredientSql->error);
+                throw new Exception("Error associating ingredient: " . $ingredientSql->error);
             }
         }
 
@@ -171,7 +171,7 @@ class Recipe {
             $sql = $this->db->prepare("INSERT INTO preparation_steps (recipe_id, step_number, description) VALUES (?, ?, ?)");
             $sql->bind_param("iis", $id, $stepNumber, $stepDescription);
             if (!$sql->execute()) {
-                throw new Exception("Erro ao adicionar passo de preparação: " . $sql->error);
+                throw new Exception("Error adding preparation step: " . $sql->error);
             }
         }
 
@@ -186,7 +186,7 @@ class Recipe {
         $recipe = $sqlResult->fetch_assoc();
 
         if (!$recipe) {
-            throw new Exception("Receita não encontrada");
+            throw new Exception("Recipe not found");
         }
 
         $stmt = $this->db->prepare("SELECT 
@@ -279,7 +279,7 @@ class Recipe {
         $sql->bind_param("is", $recipeId, $imageName);
         
         if (!$sql->execute()) {
-            throw new Exception("Erro ao adicionar imagem: " . $sql->error);
+            throw new Exception("Error adding image: " . $sql->error);
         }
 
         return true;

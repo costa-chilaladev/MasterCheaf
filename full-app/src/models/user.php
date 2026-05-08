@@ -15,7 +15,7 @@ class User {
         $sql->bind_param("sss", $name, $email, $passwordHash);
         
         if (!$sql->execute()) {
-            throw new Exception("Erro ao registar: " . $this->db->error);
+            throw new Exception("Error registering: " . $this->db->error);
         }
         return true;
     }

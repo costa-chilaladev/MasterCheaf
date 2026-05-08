@@ -6,7 +6,7 @@
     if (!isset($_SESSION['id'])) {
         http_response_code(401);
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(["success" => false, "message" => "Usuário não autenticado"]);
+        echo json_encode(["success" => false, "message" => "User not authenticated"]);
         exit();
     }
     
@@ -64,7 +64,7 @@
                     ));
 
                     if (empty($name)) {
-                        throw new Exception("Nome da receita é obrigatório");
+                        throw new Exception("Recipe name is required");
                     }
 
                     $connect->begin_transaction();
@@ -88,7 +88,7 @@
                                 $destination = $uploadDir . $newFileName;
 
                                 if (!move_uploaded_file($tmpName, $destination)) {
-                                    throw new Exception("Erro ao mover imagem para o servidor");
+                                    throw new Exception("Failed to move image to the server");
                                 }
 
                                 $uploadedFiles[] = $destination;
@@ -121,7 +121,7 @@
                 case "getRecipeById":
                     $id = $_GET['id'] ?? '';
                     if (empty($id)) {
-                        throw new Exception("ID da receita é obrigatório");
+                        throw new Exception("Recipe ID is required");
                     }
                     $recipe = $recipeModel->getRecipeById($id, $userId);
 
