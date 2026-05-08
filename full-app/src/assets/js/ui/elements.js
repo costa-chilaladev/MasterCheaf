@@ -22,7 +22,7 @@ class myHeader extends HTMLElement {
           ${
             logged
               ? `<a href="explore.html" id="logo" style="font-family: Roboto; color: #FF7A00; font-weight: bold; font-size: 1.5em">PratoFácil</a>`
-              : `<a href="login.html">Login</a>`
+              : `<a href="index.html">Login</a>`
           }
         </div>
 

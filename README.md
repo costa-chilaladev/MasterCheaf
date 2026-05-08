@@ -144,7 +144,7 @@ http://localhost/PratoFacil
 
 ## 🌐 Public Demo
 
-> Demo website link coming soon...
+https://prato-facil.vercel.app/
 
 ---
 
