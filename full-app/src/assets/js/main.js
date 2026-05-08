@@ -37,6 +37,7 @@ async function loadRecipes() {
         if (!response.ok) throw new Error("Falha na comunicação com o servidor.");
 
         const data = await response.json();
+        
         if (!data.success) throw new Error("Não foi possível carregar as receitas.");
 
         renderRecipes(data.data || []);

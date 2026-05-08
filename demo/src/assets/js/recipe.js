@@ -1,11 +1,16 @@
 import Cropper from "https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.esm.js";
 import TomSelect from "https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/esm/tom-select.complete.js";
-import { createCarroussel } from "./models/recipeUtils.js";
-import { getPossibleCategories, getPossibleIngredients, getRecipeById } from "./apis/recipeApi.js";
-import { renderCategoriesForm } from "./models/recipeUtils.js";
+import { renderCategoriesForm, createCarroussel } from "./models/recipeUtils.js";
 import { validateRecipeName,  validateRecipeDescription } from "./utils/auth.js";
 import { renderError } from "./models/renderMessages.js";
-import { minRecipeDescriptionCatacteres, minRecipeNameCaracteres, getMeasurements, saveRecipe } from "./apis/recipeApi.js";
+import { 
+    minRecipeDescriptionCatacteres, 
+    minRecipeNameCaracteres, 
+    getMeasurements, 
+    getPossibleCategories, 
+    getPossibleIngredients, 
+    getRecipeById 
+} from "./apis/recipeApi.js";
 
 let cachedIngredients = null;
 let cachedMeasurements = null;
@@ -74,13 +79,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const imageContainer = document.getElementById('image-container')
         const categoriesContainer = document.getElementById("categories")
         const interactionContainer = document.createElement("div")
-    
-        const allRecipeDetails = getRecipeById(id)
-
+        
+        const allRecipeDetails = await getRecipeById(id)
+        console.log(allRecipeDetails)
+        
         const recipe = allRecipeDetails.recipeInfo
         const categories = allRecipeDetails.categories 
 
-        const states = recipe.state
+        const states = allRecipeDetails.recipeInfo.state
 
         const images = recipe.images || [];
         const ingredients = recipe.ingredients || [];
@@ -228,6 +234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         })
     }
 });
+
 
 function renderCategories(categories, container) {
     categories.forEach(category => {
@@ -461,8 +468,6 @@ async function constructSaveAndFavoriteButton(id, interactionContainer, states) 
 
         button.addEventListener("click", () => {
             button.classList.toggle(element + "-active")
-
-            saveRecipe(id, element)
         })
 
         interactionContainer.appendChild(button)
@@ -541,7 +546,7 @@ function createCommentarySection(recipeDetailsContainer, comments, id) {
     recipeDetailsContainer.appendChild(commentSection);
 }
 
-function openEditSection(comment) {
+function saopenEditSection(comment) {
     console.log("Editing comment:", comment);
     if (document.getElementById("userCommentCreator")) {
         document.getElementById("userCommentCreator").innerHTML = "";
@@ -550,11 +555,7 @@ function openEditSection(comment) {
 }
 
 async function deleteComment(id) {
-    const response = await fetch(`../src/controllers/RecipeController.php?action=deleteComment&id=${id}`);
-    const data = await response.json();
-    console.log(data);
-
-    await refreshComments(document.getElementById("comments"), recipeId);
+    console.log(`Deleted commentary ${id}`)
 }
 
 
@@ -636,34 +637,11 @@ function createUserCommentSection(container, id = recipeId) {
             rating: selectedStar.value
         };
 
-        const response = await fetch(`../src/controllers/RecipeController.php?action=sendComment&id=${id}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-
-        const responseJson = await response.json();
-        console.log(responseJson);
-        await refreshComments(document.getElementById("comments"), recipeId);
+        alert(`Comment submitted!\nRating: ${data.rating}\nComment: ${data.comment}`);
     });
 
     section.appendChild(submitBtn);
     container.appendChild(section);
-}
-
-async function refreshComments(container, recipeId) {
-    const data = await getRecipeDetails(recipeId)
-
-    const oldSection = container;
-    if (oldSection) oldSection.innerHTML = "";
-
-    if (document.getElementById("userCommentCreator") != null) {
-        document.getElementById("userCommentCreator").innerHTML = "";
-    }
-
-    createCommentarySection(container, data.recipeInfo.comments, recipeId);
 }
 
 function initializeCropperUI() {
@@ -729,7 +707,6 @@ function initializeCropperUI() {
             croppedImages.push(blob);
             updateImageCount();
 
-            // Feedback visual de sucesso
             cropBtn.textContent = "✅ Cortada!";
             cropBtn.style.backgroundColor = "#28a745";
 
@@ -739,7 +716,6 @@ function initializeCropperUI() {
                 cropBtn.disabled = false;
             }, 1500);
 
-            // Próxima imagem ou finalizar
             if (currentIndex + 1 < files.length) {
                 currentIndex++;
                 setTimeout(() => loadImage(files[currentIndex]), 500);
@@ -764,7 +740,6 @@ function loadImage(file) {
         return;
     }
 
-    // Mostrar loading
     const container = document.getElementById('cropperContainer');
     container.style.opacity = '0.7';
 
