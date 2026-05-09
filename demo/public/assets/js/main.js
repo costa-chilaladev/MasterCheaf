@@ -1,5 +1,5 @@
-import { createRecipeCardImage, renderCategoriesForm } from "models/recipeUtils.js"
-import { getPossibleCategories, getPossibleIngredients, getRecipes } from "apis/recipeApi.js"
+import { createRecipeCardImage, renderCategoriesForm } from "./models/recipeUtils.js"
+import { getPossibleCategories, getPossibleIngredients, getRecipes } from "./apis/recipeApi.js"
 
 const container = document.getElementById("recipes-grade");
 const searchInput = document.getElementById("search-input");
