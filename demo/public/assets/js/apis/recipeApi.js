@@ -1,4 +1,4 @@
-import { recipes, recipeDetails, ingredients, categories, measurements } from "./db/db.js"
+import { recipes, recipeDetails, ingredients, categories, measurements } from "../db/db.js"
 
 export const minRecipeNameCaracteres = 5
 export const minRecipeDescriptionCatacteres = 5

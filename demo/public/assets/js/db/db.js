@@ -1,5 +1,3 @@
-
-
 export const recipes = [
   {
     id: 60,
