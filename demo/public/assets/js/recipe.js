@@ -1,8 +1,8 @@
 import Cropper from "https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.esm.js";
 import TomSelect from "https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/esm/tom-select.complete.js";
-import { renderCategoriesForm, createCarroussel } from "models/recipeUtils.js";
-import { validateRecipeName,  validateRecipeDescription } from "utils/auth.js";
-import { renderError } from "models/renderMessages.js";
+import { renderCategoriesForm, createCarroussel } from "./models/recipeUtils.js";
+import { validateRecipeName,  validateRecipeDescription } from "./utils/auth.js";
+import { renderError } from "./models/renderMessages.js";
 import { 
     minRecipeDescriptionCatacteres, 
     minRecipeNameCaracteres, 
