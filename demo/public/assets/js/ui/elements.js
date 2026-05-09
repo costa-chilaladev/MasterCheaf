@@ -88,11 +88,16 @@ class myFooter extends HTMLElement {
         font-family: Roboto, sans-serif;
         line-height: 1.7;
       ">
-        <p style="margin: 0; font-size: 1em; font-weight: 600;">
+        <p style="margin: 0; font-size: 1.1em; font-weight: 600;">
           © 2026 MasterChefAOA
         </p>
 
-        <p style="margin: 10px 0 0; font-size: 0.95em;">
+        <!-- Linha de autoria adicionada aqui -->
+        <p style="margin: 5px 0 0; font-size: 0.9em; color: #CCCCCC;">
+          Criado por <span style="color: #FF7A00; font-weight: 600;">Constantino Chilala</span>
+        </p>
+
+        <p style="margin: 15px 0 0; font-size: 0.95em;">
           This project is open-source and licensed under the
           <a 
             href="https://opensource.org/licenses/MIT"
