@@ -541,7 +541,7 @@ function createCommentarySection(recipeDetailsContainer, comments, id) {
     recipeDetailsContainer.appendChild(commentSection);
 }
 
-function saopenEditSection(comment) {
+function openEditSection(comment) {
     console.log("Editing comment:", comment);
     if (document.getElementById("userCommentCreator")) {
         document.getElementById("userCommentCreator").innerHTML = "";

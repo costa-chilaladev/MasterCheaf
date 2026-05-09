@@ -1,5 +1,5 @@
 import { createRecipeCardImage, renderCategoriesForm } from "./models/recipeUtils.js"
-import { getPossibleCategories, getPossibleIngredients, getRecipes } from "./apis/recipeApi.js"
+import { getPossibleCategories, getRecipes } from "./apis/recipeApi.js"
 
 const container = document.getElementById("recipes-grade");
 const searchInput = document.getElementById("search-input");
@@ -12,22 +12,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadRecipes();
 
     searchBtn.addEventListener("click", async () => {
-        const searchTerm = searchInput.value.trim();
-        if (searchTerm) {
-            await search(searchTerm);
-        } else {
-            loadRecipes();
-        }
+        alert("Pesquisa não está disponível nesta versão demo");
     });
 
     filterBtn.addEventListener("click", () => {
-        filterSection.classList.toggle("inactive");
+        alert("Filtros não estão disponíveis nesta versão demo");
     });
 
     const categories = await getPossibleCategories();
     renderCategoriesForm(categories, filterSection);
-
-    setupFilterListeners();
 });
 
 async function loadRecipes() {
